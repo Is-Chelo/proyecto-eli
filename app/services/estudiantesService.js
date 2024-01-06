@@ -1,5 +1,5 @@
 const {estudiantes} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest} = require('../utils/response');
+const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
 	async create(body) {
