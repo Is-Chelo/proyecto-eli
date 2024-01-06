@@ -26,10 +26,8 @@
   "scripts": {
     "dev": "nodemon ./app.js",
     "db": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-    "start": "node app.js",
-    "relations": "node code-generate/scripts/create-relations",
-    "parent": "node code-generate/scripts/create-parent-many-to-many",
-    "deploy": "node code-generate/index.js"
+    "db:prod": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC"
