@@ -15,8 +15,11 @@ module.exports = {
 	async index(params = []) {
 		try {
 			const response = await aulas.findAll({});
-
-			return Successful('Operacion Exitosa', response);
+			return Successful(
+				'Operacion Exitosa',
+				response.map((item) => item.fromDataModel())
+			);
+			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -35,8 +38,9 @@ module.exports = {
 			if (!response) {
 				return NotFoundResponse(`aulas con el id: ${id} no existe. `);
 			}
+			return Successful('Operacion Exitosa', response.fromDataModel());
 
-			return Successful('Operacion Exitosa', response);
+			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');

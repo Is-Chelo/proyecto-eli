@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
 			});
 			// define association here
 		}
+
+		fromDataModel() {
+			return {
+				id: this.id,
+				nombre: this.nombre,
+				estado: this.estado === 0 ? false : true,
+			};
+		}
 	}
 	aulas.init(
 		{

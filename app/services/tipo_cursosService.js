@@ -41,7 +41,7 @@ module.exports = {
 				},
 			});
 			if (!response) return NotFoundResponse(`tipo_cursos con el id: ${id} no existe. `);
-			return Successful('Operacion Exitosa', response);
+			return Successful('Operacion Exitosa', response.fromDataModel());
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -58,6 +58,7 @@ module.exports = {
 			});
 
 			if (!response) return NotFoundResponse(`tipo_cursos con el id: ${id} no existe.`);
+			console.log(response)
 
 			await tipo_cursos.update(body, {
 				where: {

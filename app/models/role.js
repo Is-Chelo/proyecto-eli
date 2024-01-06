@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'id_rol',
 			});
 		}
+
+		fromDataModel() {
+			return {
+				id: this.id,
+				nombre: this.nombre,
+				estado: this.active === 0 ? false : true,
+			};
+		}
 	}
 	role.init(
 		{
