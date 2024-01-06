@@ -6,6 +6,7 @@ module.exports = {
 	async create(body) {
 		try {
 			const response = await tipo_cursos.create(body);
+			
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);

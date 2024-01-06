@@ -24,7 +24,10 @@ const InternalServer = (message = 'Error en el servidor', errors = []) => {
 };
 
 const Successful = (message = 'Operacion Exitosa', data = []) => {
-	return data;
+	return {
+		data,
+		statusCode: 200,
+	};
 };
 
 module.exports = {
