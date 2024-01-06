@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 			return {
 				id: this.id,
 				nombre: this.nombre,
-				estado: this.active === 0 ? false : true,
+				estado: this.estado,
 			};
 		}
 	}

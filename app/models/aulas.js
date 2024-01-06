@@ -21,13 +21,15 @@ module.exports = (sequelize, DataTypes) => {
 			return {
 				id: this.id,
 				nombre: this.nombre,
-				estado: this.estado === 0 ? false : true,
+				capacidad: this.capacidad,
+				estado: this.estado,
 			};
 		}
 	}
 	aulas.init(
 		{
 			nombre: DataTypes.STRING,
+			capacidad: DataTypes.STRING,
 			estado: DataTypes.BOOLEAN,
 		},
 		{
