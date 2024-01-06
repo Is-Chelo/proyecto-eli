@@ -56,7 +56,7 @@ module.exports = {
 			});
 
 			if (!response) return NotFoundResponse(`modulos con el id: ${id} no existe.`);
-
+			console.log("MODULOS: ",body)
 			await modulos.update(body, {
 				where: {
 					id: id,
