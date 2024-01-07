@@ -19,20 +19,22 @@ module.exports = {
 				return BadRequest('Bad request. Please fill all fields', [
 					'Bad request. Please fill all fields',
 				]);
-				// res.status(400).json({
-				// 	message: 'Bad request. Please fill all fields',
-				// });
-				// return;
 			}
 
 			const programacion = {id_registro};
 
-			// const connection = await getConnection();
-
 			await sequelize.beginTransaction();
 
 			try {
-				await sequelize.query('INSERT INTO programacion SET ?', programacion);
+				await programaciones.create(programacion);
+				await registros.update(
+					{estado: 1},
+					{
+						where: {
+							id: id_registro,
+						},
+					}
+				);
 
 				await sequelize.query('UPDATE registros SET estado = 1 WHERE id = ?', [
 					id_registro,

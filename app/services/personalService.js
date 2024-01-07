@@ -30,11 +30,9 @@ module.exports = {
 				ci == undefined ||
 				correo_electronico == undefined
 			) {
-				res.status(400).json({
-					message: 'Bad request. Please fill all field',
-				});
+				return BadRequest('Bad request. Please fill all field', []);
 			}
-			const personal = {
+			const personalData = {
 				id_rol,
 				apellido_paterno,
 				apellido_materno,
@@ -51,12 +49,14 @@ module.exports = {
 				profesion,
 				universidad,
 			};
-			const result = await sequelize.query('INSERT INTO personal SET ?', personal);
-			// res.json({message: 'Personal type added'});
+			const response = await personal.create(personalData);
+
 			return Successful('Personal type added', []);
 		} catch (error) {
-			res.status(500);
-			res.send(error.message);
+			console.log(error);
+			return InternalServer('Error en el servidor');
+			// res.status(500);
+			// res.send(error.message);
 		}
 	},
 
@@ -124,7 +124,7 @@ module.exports = {
 					message: 'Bad request. Please fill all field',
 				});
 			}
-			const personal = {
+			const personalData = {
 				id_rol,
 				apellido_paterno,
 				apellido_materno,
@@ -141,11 +141,14 @@ module.exports = {
 				profesion,
 				universidad,
 			};
-			const connection = await getConnection();
-			const result = await connection.query('UPDATE personal SET ? WHERE id = ?', [
-				personal,
-				id,
-			]);
+			// const response = await personal.create(personalData);
+
+			await personal.update(personalData, {
+				where: {
+					id: id,
+				},
+			});
+
 			return Successful('Personal type added', []);
 
 			// res.json({message: 'Personal type added'});
