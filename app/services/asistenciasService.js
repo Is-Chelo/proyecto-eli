@@ -17,8 +17,10 @@ module.exports = {
 			const response = await asistencias.findAll({
 				include: [{model: registros}],
 			});
-
-			return Successful('Operacion Exitosa', response);
+			return Successful(
+				'Operacion Exitosa',
+				response.map((item) => item.fromDataModel())
+			);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -27,22 +29,6 @@ module.exports = {
 
 	// * funcion para listar un item
 	async show(id, params) {
-		// try {
-		// 	const response = await asistencias.findOne({
-		// 		where: {
-		// 			id: id,
-		// 		},
-		// 		include: [{model: registros}],
-		// 	});
-
-		// 	if (!response) return NotFoundResponse(`asistencias con el id: ${id} no existe. `);
-
-		// 	return Successful('Operacion Exitosa', response);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
-
 		try {
 			const id_registro = id;
 			const {fecha} = params;
@@ -57,11 +43,8 @@ module.exports = {
 				asistenciaQuery += `AND fecha = ${fecha}`;
 			}
 
-			const asistenciaResult = await sequelize.query(asistenciaQuery);
-
-			// console.log('Consulta SQL:', asistenciaQuery, queryParams);
-			// res.json(asistenciaResult[0]);
-			return Successful('Operacion Exitosa', asistenciaResult[0]);
+			const asistenciaResult = await asistencias.findOne({where: {id_registro: id_registro}});
+			return Successful('Operacion Exitosa', asistenciaResult.fromDataModel());
 		} catch (error) {
 			return InternalServer('Error en el servidor');
 		}

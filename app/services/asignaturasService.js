@@ -1,5 +1,14 @@
-const {asignaturas, cursos, carreras, modulos, aulas, sequelize, tipo_cursos} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const {
+	asignaturas,
+	cursos,
+	carreras,
+	modulos,
+	personal,
+	aulas,
+	sequelize,
+	tipo_cursos,
+} = require('../models/index');
+const {InternalServer, NotFoundResponse, Successful} = require('../utils/response');
 
 module.exports = {
 	async create(body) {
@@ -72,51 +81,19 @@ module.exports = {
 
 	// * funcion para listar un item
 	async show(id) {
-		// try {
-		// 	const response = await asignaturas.findOne({
-		// 		where: {
-		// 			id: id,
-		// 		},
-		// 		include: [{model: carreras}, {model: modulos}, {model: aulas}],
-		// 	});
-
-		// 	if (!response) return NotFoundResponse(`asignaturas con el id: ${id} no existe. `);
-
-		// 	return Successful('Operacion Exitosa', response);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
 		try {
-			const cursosResult = cursos.findOne({where:{id}})
-			// `
-			// 		SELECT *
-			// 		FROM cursos WHERE cursos.id = ${id};
-			// 	`;
-			// const cursosResult = await sequelize.query(cursosQuery);
-
-			// const tipoCursoQuery = `
-			// 		SELECT *
-			// 		FROM tipo_cursos;
-			// 	`;
+			const cursosResult = await cursos.findOne({where: {id}});
 			const tipoCursoResult = await tipo_cursos.findAll();
-
-			// const aulasQuery = `
-			// 		SELECT *
-			// 		FROM aulas;
-			// 	`;
 			const aulasResult = await aulas.findAll();
+			const personalResult = await personal.findAll();
 
-			const personalQuery = `
-					SELECT *
-					FROM personals;
-				`;
-			const personalResult = await sequelize.query(personalQuery);
 			const cursosFormatted = Object.values(cursosResult).map((curso) => {
 				const tipoCursoInfo = Object.values(tipoCursoResult).find(
 					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
 				);
-				const aulaInfo = Object.values(aulasResult).find((aula) => aula.id === curso.id_aula);
+				const aulaInfo = Object.values(aulasResult).find(
+					(aula) => aula.id === curso.id_aula
+				);
 				const personalInfo = Object.values(personalResult).find(
 					(personal) => personal.id === curso.id_personal
 				);

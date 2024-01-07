@@ -20,7 +20,6 @@ module.exports = {
 				'Operacion Exitosa',
 				response.map((item) => item.fromDataModel())
 			);
-			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -38,8 +37,6 @@ module.exports = {
 
 			if (!response) return NotFoundResponse(`carreras con el id: ${id} no existe. `);
 			return Successful('Operacion Exitosa', response.fromDataModel());
-
-			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');

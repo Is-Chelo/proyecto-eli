@@ -4,7 +4,20 @@ const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../u
 module.exports = {
 	async create(body) {
 		try {
-			const response = await estudiantes.create(body);
+			let devImageUrl = null;
+			if (body.image_path) {
+				const uploadDevResponse = await axios.post(
+					'https://serverfilesdev.esam.edu.bo/v1/files/',
+					{
+						app: 'esam.certificados',
+						base64: body.image_path,
+					}
+				);
+
+				devImageUrl = uploadDevResponse.data.id;
+			}
+
+			const response = await estudiantes.create({...body, image_path: devImageUrl});
 
 			return Successful('Item Registrado', response);
 		} catch (error) {

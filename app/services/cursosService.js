@@ -1,4 +1,4 @@
-const {cursos, aulas, tipo_cursos, modulos, plan_estudios, sequelize} = require('../models/index');
+const {cursos, aulas, tipo_cursos, modulos, plan_estudios, personal, sequelize} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -13,49 +13,22 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		// try {
-		// 	const response = await cursos.findAll({
-		// 		include: [
-		// 			{model: aulas},
-		// 			{model: tipo_cursos},
-		// 			{model: modulos},
-		// 			{model: plan_estudios},
-		// 		],
-		// 	});
-
-		// 	return Successful('Operacion Exitosa', response);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
-		// ! CORREGIR CON SEQUELIZE
 		try {
-			const [cursosResult] = await sequelize.query(`
-				SELECT *
-				FROM cursos;
-				`);
+			const [cursosResult] = await cursos.findAll();
 
-			const [tipoCursoResult] = await sequelize.query(`
-				SELECT *
-				FROM tipo_cursos;
-				`);
+			const [tipoCursoResult] = await sequelize.query('SELECT * FROM tipo_cursos');
+			const [aulasResult] = await aulas.findAll();
 
-			const [aulasResult] = await sequelize.query(`
-				SELECT *
-				FROM aulas;
-				`);
+			const [personalResult] = await personal.findAll();
 
-			const [personalResult] = await sequelize.query(`
-				SELECT *
-				FROM personals;
-				`);
-
-			const cursosFormatted = cursosResult.map((curso) => {
-				const tipoCursoInfo = tipoCursoResult.find(
+			const cursosFormatted = Object.values(cursosResult).map((curso) => {
+				const tipoCursoInfo = Object.values(tipoCursoResult).find(
 					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
 				);
-				const aulaInfo = aulasResult.find((aula) => aula.id === curso.id_aula);
-				const personalInfo = personalResult.find(
+				const aulaInfo = Object.values(aulasResult).find(
+					(aula) => aula.id === curso.id_aula
+				);
+				const personalInfo = Object.values(personalResult).find(
 					(personal) => personal.id === curso.id_personal
 				);
 
@@ -67,11 +40,9 @@ module.exports = {
 				};
 			});
 			return Successful('Operacion Exitosa', cursosFormatted);
-			// res.json(cursosFormatted);
 		} catch (error) {
 			console.error(error);
 			return InternalServer('Error en el servidor');
-			// res.status(500).send(error.message);
 		}
 	},
 

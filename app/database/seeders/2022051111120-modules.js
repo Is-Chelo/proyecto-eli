@@ -12,6 +12,7 @@ module.exports = {
 		await queryInterface.bulkInsert('cursos', cursos);
 		await queryInterface.bulkInsert('personal', personal);
 		await queryInterface.bulkInsert('roles', roles);
+		await queryInterface.bulkInsert('registros', registros);
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -24,6 +25,7 @@ module.exports = {
 		await queryInterface.bulkDelete('cursos', null, {});
 		await queryInterface.bulkDelete('personal', null, {});
 		await queryInterface.bulkDelete('roles', null, {});
+		await queryInterface.bulkDelete('registros', null, {});
 	},
 };
 
@@ -265,6 +267,119 @@ const roles = [
 	{id: 3, name: 'Contador', active: true},
 	{id: 4, name: 'Asesor', active: true},
 	{id: 5, name: 'Docente', active: true},
+];
+
+const registros = [
+	{
+		id: 1,
+		id_personal: 2,
+		id_estudiante: 2,
+		id_curso: 13,
+		anio: 0,
+		estado: 1,
+		condicion: 'Pendiente',
+		fecha_registro: '2023-10-04',
+		fecha_programacion: '2023-12-20',
+	},
+	{
+		id: 2,
+		id_personal: 4,
+		id_estudiante: 2,
+		id_curso: 13,
+		anio: 0,
+		estado: 1,
+		condicion: 'Congelado',
+		fecha_registro: '2023-11-08',
+		fecha_programacion: '2023-11-23',
+	},
+	{
+		id: 4,
+		id_personal: 6,
+		id_estudiante: 1,
+		id_curso: 15,
+		anio: 0,
+		estado: 1,
+		condicion: 'Vigente',
+		fecha_registro: '2023-11-15',
+		fecha_programacion: '2023-11-23',
+	},
+	{
+		id: 9,
+		id_personal: 1,
+		id_estudiante: 3,
+		id_curso: 13,
+		anio: 0,
+		estado: 1,
+		condicion: 'Vigente',
+		fecha_registro: '2023-11-02',
+		fecha_programacion: '2023-11-03',
+	},
+	{
+		id: 11,
+		id_personal: 1,
+		id_estudiante: 8,
+		id_curso: 15,
+		anio: 0,
+		estado: 1,
+		condicion: 'Vigente',
+		fecha_registro: '2023-11-15',
+		fecha_programacion: '2023-11-15',
+	},
+	{
+		id: 14,
+		id_personal: 2,
+		id_estudiante: 2,
+		id_curso: 15,
+		anio: 0,
+		estado: 1,
+		condicion: 'Vigente',
+		fecha_registro: '2023-11-15',
+		fecha_programacion: '2023-11-16',
+	},
+	{
+		id: 19,
+		id_personal: 2,
+		id_estudiante: 8,
+		id_curso: 16,
+		anio: 0,
+		estado: 1,
+		condicion: 'Aprobado',
+		fecha_registro: '2023-11-23',
+		fecha_programacion: '2023-11-23',
+	},
+	{
+		id: 20,
+		id_personal: 1,
+		id_estudiante: 10,
+		id_curso: 16,
+		anio: 0,
+		estado: 1,
+		condicion: 'Reprobado',
+		fecha_registro: '2023-11-23',
+		fecha_programacion: '2023-11-22',
+	},
+	{
+		id: 21,
+		id_personal: 1,
+		id_estudiante: 2,
+		id_curso: 16,
+		anio: 0,
+		estado: 1,
+		condicion: 'Vigente',
+		fecha_registro: '2023-11-24',
+		fecha_programacion: '2023-11-24',
+	},
+	{
+		id: 22,
+		id_personal: 4,
+		id_estudiante: 1,
+		id_curso: 13,
+		anio: 0,
+		estado: 0,
+		condicion: '',
+		fecha_registro: '2023-12-21',
+		fecha_programacion: '0000-00-00',
+	},
 ];
 
 const modules = [

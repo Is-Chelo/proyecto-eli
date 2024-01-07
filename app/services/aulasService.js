@@ -1,5 +1,5 @@
 const {aulas} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const {InternalServer, NotFoundResponse, Successful} = require('../utils/response');
 
 module.exports = {
 	async create(body) {
@@ -19,7 +19,6 @@ module.exports = {
 				'Operacion Exitosa',
 				response.map((item) => item.fromDataModel())
 			);
-			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -39,8 +38,6 @@ module.exports = {
 				return NotFoundResponse(`aulas con el id: ${id} no existe. `);
 			}
 			return Successful('Operacion Exitosa', response.fromDataModel());
-
-			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');

@@ -6,7 +6,6 @@ module.exports = {
 	async create(body) {
 		try {
 			const response = await cobranza.create(body);
-			
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
