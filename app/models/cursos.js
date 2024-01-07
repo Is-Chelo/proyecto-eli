@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
 			id_aula: DataTypes.INTEGER,
 			id_personal: DataTypes.INTEGER,
 			id_tipo_curso: DataTypes.INTEGER,
-			id_modulos: DataTypes.INTEGER,
+			id_modulos: DataTypes.STRING,
 			id_plan_estudio: DataTypes.INTEGER,
 		},
 		{

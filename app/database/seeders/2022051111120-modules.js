@@ -6,7 +6,7 @@ module.exports = {
 		await queryInterface.bulkInsert('modules', modules);
 		await queryInterface.bulkInsert('aulas', aulas);
 		await queryInterface.bulkInsert('asignaturas', asignaturas);
-		await queryInterface.bulkInsert('asitencias', asitencias);
+		await queryInterface.bulkInsert('asistencias', asitencias);
 		await queryInterface.bulkInsert('modulos', modulos);
 		await queryInterface.bulkInsert('carreras', carreras);
 		await queryInterface.bulkInsert('cursos', cursos);
@@ -177,10 +177,61 @@ const carreras = [
 	{nombre: 'Sistemas Informáticos', duracion: 3},
 ];
 const cursos = [
-	{nombre: 'Administración Financiera', duracion: 3},
-	{nombre: 'Secretariado Ejecutivo', duracion: 3},
-	{nombre: 'Contaduría Pública', duracion: 3},
-	{nombre: 'Sistemas Informáticos', duracion: 3},
+	{
+		id: 13,
+		nombre: 'Manejo de Paquetes G-1',
+		nombre_corto: null,
+		id_tipo_curso: 2,
+		anio_turno: null,
+		modalidad: '{"name":"Virtual","code":"Virtual"}',
+		id_aula: 1,
+		id_personal: 2,
+		fecha_inicio: '2023-11-14',
+		fecha_fin: '2023-11-22',
+		hora_inicio: '08:30',
+		cantidad_horas: 1.0,
+		dias: '[{"name":"Lunes","code":"Lun"},{"name":"Martes","code":"Mar"},{"name":"Sábado","code":"Sab"}]',
+		id_modulos:
+			'{"id":[1,3,2],"format":[{"name":"WINDOWS","code":1},{"name":"POWER POINT","code":3},{"name":"WORD","code":2}]}',
+		id_plan_estudio: 0,
+	},
+	{
+		id: 15,
+		nombre: 'Manejo de Paquetes G-2',
+		nombre_corto: null,
+		id_tipo_curso: 2,
+		anio_turno: null,
+		modalidad: '{"name":"Presencial","code":"Presencial"}',
+		id_aula: 2,
+		id_personal: 6,
+		fecha_inicio: '2023-11-15',
+		fecha_fin: '2023-11-25',
+		hora_inicio: '09:00',
+		cantidad_horas: 2.0,
+		dias: '[{"name":"Lunes","code":"Lun"},{"name":"Miércoles","code":"Mier"},{"name":"Sábado","code":"Sab"}]',
+		id_modulos:
+			'{"id":[1,2,3],"format":[{"name":"WINDOWS","code":1},{"name":"WORD","code":2},{"name":"POWER POINT","code":3}]}',
+		id_plan_estudio: 0,
+	},
+
+	{
+		id: 16,
+		nombre: 'Diseño Grafico',
+		nombre_corto: null,
+		id_tipo_curso: 3,
+		anio_turno: null,
+		modalidad: '{"name":"Presencial","code":"Presencial"}',
+		id_aula: 2,
+		id_personal: 6,
+		fecha_inicio: '2023-11-13',
+		fecha_fin: ' 2023-12-16',
+		hora_inicio: '08:00',
+		cantidad_horas: 2.0,
+		dias: '[{"name":"Martes","code":"Mar"},{"name":"Jueves","code":"Jue"}]',
+		id_modulos:
+			'{"id":[6,7,8],"format":[{"name":"PHOTOSHOP","code":6},{"name":"ILUSTRATOR","code":7},{"name":"INDESING","code":8}]}',
+		id_plan_estudio: 0,
+	},
 ];
 
 const modules = [

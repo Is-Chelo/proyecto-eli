@@ -46,7 +46,7 @@ module.exports = {
 				type: Sequelize.INTEGER,
 			},
 			id_modulos: {
-				type: Sequelize.INTEGER,
+				type: Sequelize.STRING,
 			},
 			id_plan_estudio: {
 				type: Sequelize.INTEGER,
