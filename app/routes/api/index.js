@@ -15,7 +15,7 @@ router.use('/plan_estudios', require('./plan_estudios.route'));
 router.use('/cursos', require('./cursos.route'));
 router.use('/registros', require('./registros.route'));
 router.use('/programaciones', require('./programaciones.route'));
-router.use('/registros-carreras', require('./registros_carreras.route'));
+router.use('/registros_carreras', require('./registros_carreras.route'));
 router.use('/notas', require('./notas.route'));
 router.use('/asignaturas', require('./asignaturas.route'));
 router.use('/asistencias', require('./asistencias.route'));

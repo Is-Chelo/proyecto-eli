@@ -7,6 +7,7 @@ module.exports = {
 		await queryInterface.bulkInsert('aulas', aulas);
 		await queryInterface.bulkInsert('asignaturas', asignaturas);
 		await queryInterface.bulkInsert('modulos', modulos);
+		await queryInterface.bulkInsert('carreras', carreras);
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -14,6 +15,7 @@ module.exports = {
 		await queryInterface.bulkDelete('aulas', null, {});
 		await queryInterface.bulkDelete('asignaturas', null, {});
 		await queryInterface.bulkDelete('modulos', null, {});
+		await queryInterface.bulkDelete('carreras', null, {});
 	},
 };
 
@@ -65,6 +67,12 @@ const aulas = [
 	{nombre: 'Laboratorio 1', capacidad: 12, estado: true},
 	{nombre: 'Laboratorio 2', capacidad: 12, estado: true},
 	{nombre: 'Laboratorio 3', capacidad: 12, estado: true},
+];
+const carreras = [
+	{name: 'Administración Financiera', duracion: 3},
+	{name: 'Secretariado Ejecutivo', duracion: 3},
+	{name: 'Contaduría Pública', duracion: 3},
+	{name: 'Sistemas Informáticos', duracion: 3},
 ];
 
 const modules = [
