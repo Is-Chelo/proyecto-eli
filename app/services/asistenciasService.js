@@ -43,7 +43,6 @@ module.exports = {
 		// 	return InternalServer('Error en el servidor');
 		// }
 
-		// ! CORREGIR CON SEQUELIZE
 		try {
 			const id_registro = id;
 			const {fecha} = params;

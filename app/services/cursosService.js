@@ -30,29 +30,40 @@ module.exports = {
 		// }
 		// ! CORREGIR CON SEQUELIZE
 		try {
-			const [cursosResult] = await cursos.findAll();
-			const [tipoCursoResult] = await tipo_cursos.findAll();
-			const [aulasResult] = await aulas.findAll();
+			const [cursosResult] = await sequelize.query(`
+				SELECT *
+				FROM cursos;
+				`);
 
-			// const [personalResult] = await sequelize.query(`
-			// 	SELECT *
-			// 	FROM personal;
-			// 	`);
+			const [tipoCursoResult] = await sequelize.query(`
+				SELECT *
+				FROM tipo_cursos;
+				`);
+
+			const [aulasResult] = await sequelize.query(`
+				SELECT *
+				FROM aulas;
+				`);
+
+			const [personalResult] = await sequelize.query(`
+				SELECT *
+				FROM personal;
+				`);
 
 			const cursosFormatted = cursosResult.map((curso) => {
 				const tipoCursoInfo = tipoCursoResult.find(
 					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
 				);
 				const aulaInfo = aulasResult.find((aula) => aula.id === curso.id_aula);
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === curso.id_personal
-				// );
+				const personalInfo = personalResult.find(
+					(personal) => personal.id === curso.id_personal
+				);
 
 				return {
 					...curso,
 					tipo_curso: tipoCursoInfo,
 					aula: aulaInfo,
-					// personal: personalInfo,
+					personal: personalInfo,
 				};
 			});
 			return Successful('Operacion Exitosa', cursosFormatted);

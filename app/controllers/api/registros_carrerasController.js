@@ -33,6 +33,11 @@ module.exports = {
 		res.status(response.statusCode).json(response);
 	},
 
+	async getRegistros(req, res) {
+		const response = await registros_carrerasService.getRegistros(req.query);
+		res.status(response.statusCode).json(response);
+	},
+
 	// * VIEWS
 	// async listView(req, res) {
 	// 	res.render('home/registros-carreras');

@@ -118,11 +118,11 @@ module.exports = {
 
 			const estudiantesResult = await sequelize.query(estudiantesQuery);
 
-			// const personalQuery = `
-			// 		SELECT *
-			// 		FROM personal;
-			// 	`;
-			// const personalResult = await connection.query(personalQuery);
+			const personalQuery = `
+					SELECT *
+					FROM personal;
+				`;
+			const personalResult = await sequelize.query(personalQuery);
 
 			const programacionesFormatted = Object.values(programacionResult).map(
 				(programacion) => {
@@ -135,15 +135,15 @@ module.exports = {
 					const cursoInfo = Object.values(cursosResult).find(
 						(curso) => curso.id === registroInfo.id_curso
 					);
-					//   const personalInfo = personalResult.find(
-					// 	(personal) => personal.id === registroInfo.id_personal
-					//   );
+					const personalInfo = personalResult.find(
+						(personal) => personal.id === registroInfo.id_personal
+					);
 
 					return {
 						...programacion,
 						registro: registroInfo,
 						estudiante: estudianteInfo,
-						// personal: personalInfo,
+						personal: personalInfo,
 						curso: cursoInfo,
 					};
 				}

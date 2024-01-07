@@ -1,4 +1,4 @@
-const {registros_carreras, estudiantes, cursos} = require('../models/index');
+const {registros_carreras, estudiantes, cursos, sequelize} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -133,6 +133,75 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
+		}
+	},
+
+	async getRegistros(params) {
+		try {
+			const {id_estudiante, id_carrera, anio} = params;
+
+			const queryParams = [];
+			let registrosQuery = `
+			  SELECT *
+			  FROM \`registros_carreras\`
+			  `;
+
+			if (anio) {
+				queryParams.push(`anio LIKE '${anio}%'`);
+			}
+			if (id_estudiante) {
+				queryParams.push(`id_estudiante = ${id_estudiante}`);
+			}
+			if (id_carrera) {
+				queryParams.push(`id_curso = ${id_carrera}`);
+			}
+
+			if (queryParams.length > 0) {
+				registrosQuery += ` WHERE ${queryParams.join(' AND ')}`;
+			}
+
+			registrosQuery += ';';
+
+			const [registrosResult] = await sequelize.query(registrosQuery);
+
+			const [cursosResult] = await sequelize.query(`
+			SELECT *
+			FROM carreras;
+		  `);
+
+			const [estudiantesResult] = await sequelize.query(`
+			SELECT *
+			FROM estudiantes;
+		  `);
+
+			const [personalResult] = await sequelize.query(`
+			SELECT *
+			FROM personal;
+		  `);
+
+			const registrosFormatted = registrosResult.map((registro) => {
+				const estudianteInfo = estudiantesResult.find(
+					(estudiante) => estudiante.id === registro.id_estudiante
+				);
+				const carrera = cursosResult.find((curso) => curso.id === registro.id_curso);
+				const personalInfo = personalResult.find(
+					(personal) => personal.id === registro.id_personal
+				);
+
+				return {
+					...registro,
+					estudiante: estudianteInfo,
+					personal: personalInfo,
+					carrera,
+				};
+			});
+			return Successful('Operacion Exitosa', registrosFormatted);
+
+			// res.json(registrosFormatted);
+		} catch (error) {
+			console.error(error);
+			return InternalServer('Error en el servidor');
+			// res.status(500).send(error.message);
 		}
 	},
 };

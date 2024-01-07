@@ -1,4 +1,3 @@
-const {response} = require('express');
 const {asignaturas, cursos, carreras, modulos, aulas, sequelize, tipo_cursos} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
@@ -36,7 +35,7 @@ module.exports = {
 			const [modulosResult] = await modulos.findAll();
 			const [carrerasResult] = await carreras.findAll();
 			const [aulasResult] = await aulas.findAll();
-			// const [personalResult] = await sequelize.query('SELECT * FROM personal');
+			const [personalResult] = await sequelize.query('SELECT * FROM personal');
 
 			const cursosFormatted = cursosResult.map((curso) => {
 				const aulaInfo = Object.values(aulasResult).find(
@@ -48,20 +47,20 @@ module.exports = {
 				const moduloInfo = Object.values(modulosResult).find(
 					(mod) => mod.id === curso.id_modulo
 				);
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === curso.id_personal
-				// );
-				// const encargado = personalResult.find(
-				// 	(personal) => personal.id === curso.encargado
-				// );
+				const personalInfo = Object.values(personalResult).find(
+					(personal) => personal.id === curso.id_personal
+				);
+				const encargado = Object.values(personalResult).find(
+					(personal) => personal.id === curso.encargado
+				);
 
 				return {
 					...curso,
 					aula: aulaInfo,
-					// personal: personalInfo,
+					personal: personalInfo,
 					modulos: moduloInfo,
 					carreras,
-					// encargado,
+					encargado,
 				};
 			});
 			return Successful('Operacion Exitosa', cursosFormatted);
@@ -108,25 +107,25 @@ module.exports = {
 			// 	`;
 			const aulasResult = await aulas.findAll();
 
-			// const personalQuery = `
-			// 		SELECT *
-			// 		FROM personal;
-			// 	`;
-			// const personalResult = await sequelize.query(personalQuery);
+			const personalQuery = `
+					SELECT *
+					FROM personal;
+				`;
+			const personalResult = await sequelize.query(personalQuery);
 			const cursosFormatted = Object.values(cursosResult).map((curso) => {
 				const tipoCursoInfo = Object.values(tipoCursoResult).find(
 					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
 				);
 				const aulaInfo = Object.values(aulasResult).find((aula) => aula.id === curso.id_aula);
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === curso.id_personal
-				// );
+				const personalInfo = Object.values(personalResult).find(
+					(personal) => personal.id === curso.id_personal
+				);
 
 				return {
 					...curso,
 					tipo_curso: tipoCursoInfo,
 					aula: aulaInfo,
-					// personal: personalInfo,
+					personal: personalInfo,
 				};
 			});
 			return Successful('Operacion Exitosa', cursosFormatted);

@@ -1,4 +1,4 @@
-const {registros, estudiantes, cursos} = require('../models/index');
+const {registros, estudiantes, cursos, sequelize} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -14,38 +14,94 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		try {
-			const registrosResult = await registros.findAll({
-				include: [{model: estudiantes}, {model: cursos}],
-			});
+		// try {
+		// 	const registrosResult = await registros.findAll({
+		// 		include: [{model: estudiantes}, {model: cursos}],
+		// 	});
 
-			if (Object.keys(params).length > 0) {
-				response = await Filter.applyFilter(params, registros);
+		// 	if (Object.keys(params).length > 0) {
+		// 		response = await Filter.applyFilter(params, registros);
+		// 	}
+
+		// 	const cursosResult = await cursos.findAll();
+		// 	const estudiantesResult = await estudiantes.findAll();
+
+		// 	const registrosFormatted = Object.values(registrosResult).map((registro) => {
+		// 		const estudianteInfo = estudiantesResult.find(
+		// 			(estudiante) => estudiante.id === registro.id_estudiante
+		// 		);
+		// 		const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
+		// 		// const personalInfo = personalResult.find(
+		// 		// 	(personal) => personal.id === registro.id_personal
+		// 		// );
+
+		// 		return {
+		// 			...registro,
+		// 			estudiante: estudianteInfo,
+		// 			// personal: personalInfo,
+		// 			curso: cursoInfo,
+		// 		};
+		// 	});
+
+		// 	return Successful('Operacion Exitosa', registrosFormatted);
+		// } catch (error) {
+		// 	console.log(error);
+		// 	return InternalServer('Error en el servidor');
+		// }
+
+		try {
+			const {id_estudiante} = params;
+
+			let registrosQuery = `
+				SELECT *
+				FROM registros
+			`;
+
+			if (id_estudiante) {
+				registrosQuery += ` WHERE id_estudiante = ${id_estudiante}`;
 			}
 
-			const cursosResult = await cursos.findAll();
-			const estudiantesResult = await estudiantes.findAll();
+			registrosQuery += ';';
 
-			const registrosFormatted = Object.values(registrosResult).map((registro) => {
+			const [registrosResult] = await sequelize.query(registrosQuery);
+
+			const cursosQuery = `
+				SELECT *
+				FROM cursos;
+			`;
+			const [cursosResult] = await sequelize.query(cursosQuery);
+
+			const estudiantesQuery = `
+				SELECT *
+				FROM estudiantes;
+			`;
+			const [estudiantesResult] = await sequelize.query(estudiantesQuery);
+
+			const personalQuery = `
+				SELECT *
+				FROM personal;
+			`;
+			const [personalResult] = await sequelize.query(personalQuery);
+
+			const registrosFormatted = registrosResult.map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
 					(estudiante) => estudiante.id === registro.id_estudiante
 				);
 				const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === registro.id_personal
-				// );
+				const personalInfo = personalResult.find(
+					(personal) => personal.id === registro.id_personal
+				);
 
 				return {
 					...registro,
 					estudiante: estudianteInfo,
-					// personal: personalInfo,
+					personal: personalInfo,
 					curso: cursoInfo,
 				};
 			});
-
 			return Successful('Operacion Exitosa', registrosFormatted);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
@@ -133,7 +189,7 @@ module.exports = {
 			const estudiantesResult = await estudiantes.findAll();
 
 			// TODO: FALTA EL PERSONAL
-			// const [personalResult] = await connection.query('SELECT * FROM personal');
+			const [personalResult] = await sequelize.query('SELECT * FROM personal');
 
 			const registrosFormatted = Object.values(registrosResult).map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
@@ -141,14 +197,14 @@ module.exports = {
 				);
 				const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
 
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === registro.id_personal
-				// );
+				const personalInfo = personalResult.find(
+					(personal) => personal.id === registro.id_personal
+				);
 
 				return {
 					...registro,
 					estudiante: estudianteInfo,
-					// personal: personalInfo,
+					personal: personalInfo,
 					curso: cursoInfo,
 				};
 			});

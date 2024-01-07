@@ -6,16 +6,20 @@ module.exports = {
 		await queryInterface.bulkInsert('modules', modules);
 		await queryInterface.bulkInsert('aulas', aulas);
 		await queryInterface.bulkInsert('asignaturas', asignaturas);
+		await queryInterface.bulkInsert('asitencias', asitencias);
 		await queryInterface.bulkInsert('modulos', modulos);
 		await queryInterface.bulkInsert('carreras', carreras);
+		await queryInterface.bulkInsert('cursos', cursos);
 	},
 
 	async down(queryInterface, Sequelize) {
 		await queryInterface.bulkDelete('modules', null, {});
 		await queryInterface.bulkDelete('aulas', null, {});
 		await queryInterface.bulkDelete('asignaturas', null, {});
+		await queryInterface.bulkDelete('asitencias', null, {});
 		await queryInterface.bulkDelete('modulos', null, {});
 		await queryInterface.bulkDelete('carreras', null, {});
+		await queryInterface.bulkDelete('cursos', null, {});
 	},
 };
 
@@ -61,14 +65,118 @@ const asignaturas = [
 		id_aula: 1,
 		anio: 1,
 	},
+	{
+		id_carrera: 3,
+		id_modulo: 16,
+		fecha_inicio: '2024-02-09',
+		fecha_fin: '2024-12-13',
+		id_personal: 1,
+		hora_inicio: '08:00',
+		dias: "[ {name: 'Jueves', code: 'Jue'},{name: 'Miércoles', code: 'Mier'},]",
+		encargado: 6,
+		modalidad: 'Presencial',
+		cantidad_horas: 1.0,
+		id_aula: 7,
+		anio: 1,
+	},
+	{
+		id_carrera: 3,
+		id_modulo: 17,
+		fecha_inicio: '2024-02-08',
+		fecha_fin: '2024-12-13',
+		id_personal: 4,
+		hora_inicio: '08:00',
+		dias: '[{"name":"Jueves","code":"Jue"},{"name":"Miércoles","code":"Mier"}]',
+		encargado: 6,
+		modalidad: 'Presencial',
+		cantidad_horas: 1.0,
+		id_aula: 2,
+		anio: 1,
+	},
+	{
+		id_carrera: 3,
+		id_modulo: 17,
+		fecha_inicio: '2024-02-08',
+		fecha_fin: '2024-12-13',
+		id_personal: 4,
+		hora_inicio: '08:00',
+		dias: '[{"name":"Jueves","code":"Jue"},{"name":"Miércoles","code":"Mier"}]',
+		encargado: 6,
+		modalidad: 'Presencial',
+		cantidad_horas: 1.0,
+		id_aula: 2,
+		anio: 1,
+	},
+	{
+		id_carrera: 3,
+		id_modulo: 19,
+		fecha_inicio: '2024-02-09',
+		fecha_fin: '2024-12-13',
+		id_personal: 4,
+		hora_inicio: '08:00',
+		dias: '[{"name":"Miércoles","code":"Mier"},{"name":"Jueves","code":"Jue"}]',
+		encargado: 4,
+		modalidad: 'Presencial',
+		cantidad_horas: 2.0,
+		id_aula: 2,
+		anio: 1,
+	},
+	{
+		id_carrera: 3,
+		id_modulo: 19,
+		fecha_inicio: '2024-02-09',
+		fecha_fin: '2024-12-13',
+		id_personal: 4,
+		hora_inicio: '08:00',
+		dias: '[{"name":"Miércoles","code":"Mier"},{"name":"Jueves","code":"Jue"}]',
+		encargado: 4,
+		modalidad: 'Presencial',
+		cantidad_horas: 2.0,
+		id_aula: 2,
+		anio: 1,
+	},
+
+	{
+		id_carrera: 3,
+		id_modulo: 23,
+		fecha_inicio: '2024-01-04',
+		fecha_fin: '2023-12-15',
+		id_personal: 0,
+		hora_inicio: '08:00',
+		dias: '[{"name":"Miércoles","code":"Mier"},{"name":"Jueves","code":"Jue"}]',
+		encargado: 0,
+		modalidad: 'Presencial',
+		cantidad_horas: 1.0,
+		id_aula: 0,
+		anio: 2,
+	},
+];
+
+const asitencias = [
+	{id_registro: 1, fecha: '2023-11-14', asistencia: 'F', comentario: ''},
+	{id_registro: 1, fecha: '2023-11-14', asistencia: 'L', comentario: ''},
+	{id_registro: 1, fecha: '2023-11-14', asistencia: 'P', comentario: ''},
+	{id_registro: 2, fecha: '2023-11-14', asistencia: 'L', comentario: ''},
+	{id_registro: 2, fecha: '2023-11-14', asistencia: 'P', comentario: ''},
+	{id_registro: 1, fecha: '2023-11-14', asistencia: 'P', comentario: ''},
+	{id_registro: 1, fecha: '2023-11-14', asistencia: 'P', comentario: ''},
+	{id_registro: 2, fecha: '2023-11-14', asistencia: 'L', comentario: ''},
 ];
 
 const aulas = [
 	{nombre: 'Laboratorio 1', capacidad: 12, estado: true},
 	{nombre: 'Laboratorio 2', capacidad: 12, estado: true},
 	{nombre: 'Laboratorio 3', capacidad: 12, estado: true},
+	{nombre: 'Aula 1', capacidad: 12, estado: true},
+	{nombre: 'Aula 2', capacidad: 12, estado: true},
 ];
 const carreras = [
+	{nombre: 'Administración Financiera', duracion: 3},
+	{nombre: 'Secretariado Ejecutivo', duracion: 3},
+	{nombre: 'Contaduría Pública', duracion: 3},
+	{nombre: 'Sistemas Informáticos', duracion: 3},
+];
+const cursos = [
 	{nombre: 'Administración Financiera', duracion: 3},
 	{nombre: 'Secretariado Ejecutivo', duracion: 3},
 	{nombre: 'Contaduría Pública', duracion: 3},
