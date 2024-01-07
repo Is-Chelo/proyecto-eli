@@ -35,7 +35,7 @@ module.exports = {
 			const [modulosResult] = await modulos.findAll();
 			const [carrerasResult] = await carreras.findAll();
 			const [aulasResult] = await aulas.findAll();
-			const [personalResult] = await sequelize.query('SELECT * FROM personal');
+			const [personalResult] = await sequelize.query('SELECT * FROM personals');
 
 			const cursosFormatted = cursosResult.map((curso) => {
 				const aulaInfo = Object.values(aulasResult).find(
@@ -109,7 +109,7 @@ module.exports = {
 
 			const personalQuery = `
 					SELECT *
-					FROM personal;
+					FROM personals;
 				`;
 			const personalResult = await sequelize.query(personalQuery);
 			const cursosFormatted = Object.values(cursosResult).map((curso) => {

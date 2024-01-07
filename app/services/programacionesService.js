@@ -120,7 +120,7 @@ module.exports = {
 
 			const personalQuery = `
 					SELECT *
-					FROM personal;
+					FROM personals;
 				`;
 			const personalResult = await sequelize.query(personalQuery);
 

@@ -176,7 +176,7 @@ module.exports = {
 
 			const [personalResult] = await sequelize.query(`
 			SELECT *
-			FROM personal;
+			FROM personals;
 		  `);
 
 			const registrosFormatted = registrosResult.map((registro) => {

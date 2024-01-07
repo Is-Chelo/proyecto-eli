@@ -19,5 +19,7 @@ router.use('/registros_carreras', require('./registros_carreras.route'));
 router.use('/notas', require('./notas.route'));
 router.use('/asignaturas', require('./asignaturas.route'));
 router.use('/asistencias', require('./asistencias.route'));
+router.use('/asistencias', require('./asistencias.route'));
+router.use('/personal', require('./personal.route'));
 
 module.exports = router;

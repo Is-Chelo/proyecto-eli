@@ -79,7 +79,7 @@ module.exports = {
 
 			const personalQuery = `
 				SELECT *
-				FROM personal;
+				FROM personals;
 			`;
 			const [personalResult] = await sequelize.query(personalQuery);
 
@@ -189,7 +189,7 @@ module.exports = {
 			const estudiantesResult = await estudiantes.findAll();
 
 			// TODO: FALTA EL PERSONAL
-			const [personalResult] = await sequelize.query('SELECT * FROM personal');
+			const [personalResult] = await sequelize.query('SELECT * FROM personals');
 
 			const registrosFormatted = Object.values(registrosResult).map((registro) => {
 				const estudianteInfo = estudiantesResult.find(

@@ -10,6 +10,7 @@ module.exports = {
 		await queryInterface.bulkInsert('modulos', modulos);
 		await queryInterface.bulkInsert('carreras', carreras);
 		await queryInterface.bulkInsert('cursos', cursos);
+		await queryInterface.bulkInsert('personal', personal);
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -20,6 +21,7 @@ module.exports = {
 		await queryInterface.bulkDelete('modulos', null, {});
 		await queryInterface.bulkDelete('carreras', null, {});
 		await queryInterface.bulkDelete('cursos', null, {});
+		await queryInterface.bulkDelete('personal', null, {});
 	},
 };
 
@@ -231,6 +233,27 @@ const cursos = [
 		id_modulos:
 			'{"id":[6,7,8],"format":[{"name":"PHOTOSHOP","code":6},{"name":"ILUSTRATOR","code":7},{"name":"INDESING","code":8}]}',
 		id_plan_estudio: 0,
+	},
+];
+
+const personal = [
+	{
+		id: 1,
+		id_rol: 1,
+		apellido_paterno: 'Villarpando',
+		apellido_materno: 'Valencia',
+		nombres: 'Elizabeth',
+		telefono: null,
+		correo_electronico: 'evillarpando@cca.edu.bo',
+		numero_de_cuenta: null,
+		tipo_de_cuenta: null,
+		banco: null,
+		ci: '10381504Ch',
+		carrera_o_curso: null,
+		pago_por_hora: null,
+		fecha_de_nacimiento: null,
+		profesion: null,
+		universidad: null,
 	},
 ];
 
