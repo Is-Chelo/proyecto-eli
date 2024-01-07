@@ -1,4 +1,5 @@
-const {asignaturas, carreras, modulos, aulas} = require('../models/index');
+const {response} = require('express');
+const {asignaturas, cursos, carreras, modulos, aulas, sequelize, tipo_cursos} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -15,30 +16,38 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			if (params.anio !== undefined) {
-				const response = await asignaturas.findAll({
-					include: [{model: carreras}, {model: modulos}, {model: aulas}],
-				});
-			} else {
-				const response = await asignaturas.findAll({
-					where: {
-						anio: anio,
-					},
-					include: [{model: carreras}, {model: modulos}, {model: aulas}],
-				});
+			const {anio} = params;
+			const queryParams = [];
+			let cursosQuery = `
+				SELECT *
+				FROM asignaturas
+				`;
+
+			if (anio) {
+				queryParams.push(`anio = ${anio}`);
 			}
 
-			// const cursosResult = await cursos.findAll();
-			const modulosResult = await modulos.findAll();
-			const carrerasResult = await carreras.findAll();
-			const aulasResult = await aulas.findAll();
+			if (queryParams.length > 0) {
+				cursosQuery += ` WHERE ${queryParams.join(' AND ')}`;
+			}
 
-			// const [personalResult] = await connection.findAll('SELECT * FROM personal');
+			const [cursosResult] = await sequelize.query(cursosQuery);
 
-			const cursosFormatted = Object.values(asignaturas).map((curso) => {
-				const aulaInfo = aulasResult.find((aula) => aula.id === curso.id_aula);
-				const carreras = carrerasResult.find((carrera) => carrera.id === curso.id_carrera);
-				const moduloInfo = modulosResult.find((mod) => mod.id === curso.id_modulo);
+			const [modulosResult] = await modulos.findAll();
+			const [carrerasResult] = await carreras.findAll();
+			const [aulasResult] = await aulas.findAll();
+			// const [personalResult] = await sequelize.query('SELECT * FROM personal');
+
+			const cursosFormatted = cursosResult.map((curso) => {
+				const aulaInfo = Object.values(aulasResult).find(
+					(aula) => aula.id === curso.id_aula
+				);
+				const carreras = Object.values(carrerasResult).find(
+					(carrera) => carrera.id === curso.id_carrera
+				);
+				const moduloInfo = Object.values(modulosResult).find(
+					(mod) => mod.id === curso.id_modulo
+				);
 				// const personalInfo = personalResult.find(
 				// 	(personal) => personal.id === curso.id_personal
 				// );
@@ -55,7 +64,6 @@ module.exports = {
 					// encargado,
 				};
 			});
-
 			return Successful('Operacion Exitosa', cursosFormatted);
 		} catch (error) {
 			console.log(error);
@@ -65,19 +73,65 @@ module.exports = {
 
 	// * funcion para listar un item
 	async show(id) {
+		// try {
+		// 	const response = await asignaturas.findOne({
+		// 		where: {
+		// 			id: id,
+		// 		},
+		// 		include: [{model: carreras}, {model: modulos}, {model: aulas}],
+		// 	});
+
+		// 	if (!response) return NotFoundResponse(`asignaturas con el id: ${id} no existe. `);
+
+		// 	return Successful('Operacion Exitosa', response);
+		// } catch (error) {
+		// 	console.log(error);
+		// 	return InternalServer('Error en el servidor');
+		// }
 		try {
-			const response = await asignaturas.findOne({
-				where: {
-					id: id,
-				},
-				include: [{model: carreras}, {model: modulos}, {model: aulas}],
+			const cursosResult = cursos.findOne({where:{id}})
+			// `
+			// 		SELECT *
+			// 		FROM cursos WHERE cursos.id = ${id};
+			// 	`;
+			// const cursosResult = await sequelize.query(cursosQuery);
+
+			// const tipoCursoQuery = `
+			// 		SELECT *
+			// 		FROM tipo_cursos;
+			// 	`;
+			const tipoCursoResult = await tipo_cursos.findAll();
+
+			// const aulasQuery = `
+			// 		SELECT *
+			// 		FROM aulas;
+			// 	`;
+			const aulasResult = await aulas.findAll();
+
+			// const personalQuery = `
+			// 		SELECT *
+			// 		FROM personal;
+			// 	`;
+			// const personalResult = await sequelize.query(personalQuery);
+			const cursosFormatted = Object.values(cursosResult).map((curso) => {
+				const tipoCursoInfo = Object.values(tipoCursoResult).find(
+					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
+				);
+				const aulaInfo = Object.values(aulasResult).find((aula) => aula.id === curso.id_aula);
+				// const personalInfo = personalResult.find(
+				// 	(personal) => personal.id === curso.id_personal
+				// );
+
+				return {
+					...curso,
+					tipo_curso: tipoCursoInfo,
+					aula: aulaInfo,
+					// personal: personalInfo,
+				};
 			});
-
-			if (!response) return NotFoundResponse(`asignaturas con el id: ${id} no existe. `);
-
-			return Successful('Operacion Exitosa', response);
+			return Successful('Operacion Exitosa', cursosFormatted);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			return InternalServer('Error en el servidor');
 		}
 	},

@@ -1,4 +1,4 @@
-const {asistencias, registros} = require('../models/index');
+const {asistencias, registros, sequelize} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -26,20 +26,44 @@ module.exports = {
 	},
 
 	// * funcion para listar un item
-	async show(id) {
+	async show(id, params) {
+		// try {
+		// 	const response = await asistencias.findOne({
+		// 		where: {
+		// 			id: id,
+		// 		},
+		// 		include: [{model: registros}],
+		// 	});
+
+		// 	if (!response) return NotFoundResponse(`asistencias con el id: ${id} no existe. `);
+
+		// 	return Successful('Operacion Exitosa', response);
+		// } catch (error) {
+		// 	console.log(error);
+		// 	return InternalServer('Error en el servidor');
+		// }
+
+		// ! CORREGIR CON SEQUELIZE
 		try {
-			const response = await asistencias.findOne({
-				where: {
-					id: id,
-				},
-				include: [{model: registros}],
-			});
+			const id_registro = id;
+			const {fecha} = params;
 
-			if (!response) return NotFoundResponse(`asistencias con el id: ${id} no existe. `);
+			let asistenciaQuery = `
+					SELECT *
+					FROM asistencias
+					WHERE id_registro = ${id_registro}
+				`;
 
-			return Successful('Operacion Exitosa', response);
+			if (fecha) {
+				asistenciaQuery += `AND fecha = ${fecha}`;
+			}
+
+			const asistenciaResult = await sequelize.query(asistenciaQuery);
+
+			// console.log('Consulta SQL:', asistenciaQuery, queryParams);
+			// res.json(asistenciaResult[0]);
+			return Successful('Operacion Exitosa', asistenciaResult[0]);
 		} catch (error) {
-			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},

@@ -31,7 +31,8 @@ router.put(
 
 	notasControllerController.update
 );
-router.get('/:id', notasControllerController.show);
+router.get('/:id_registro', notasControllerController.show);
 router.delete('/:id', notasControllerController.delete);
+router.get("/:id_registro/:id_modulo", notasControllerController.getNotasModulo);
 
 module.exports = router;

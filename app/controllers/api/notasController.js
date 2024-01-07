@@ -6,8 +6,8 @@ module.exports = {
 		res.status(response.statusCode).json(response);
 	},
 	async show(req, res) {
-		const { id } = req.params
-		const response = await notasService.show(id);
+		const { id_registro } = req.params
+		const response = await notasService.show(id_registro);
 		res.status(response.statusCode).json(response);
 	},
 	async create(req, res) {
@@ -24,6 +24,13 @@ module.exports = {
 	async delete(req, res) {
 		const { id } = req.params
 		const response = await notasService.delete( id );
+		res.status(response.statusCode).json(response);
+	},
+
+	async getNotasModulo(req, res) {
+		// const { id } = req.params
+		const { id_registro, id_modulo } = req.params;
+		const response = await notasService.getNotasModulo(id_registro, id_modulo);
 		res.status(response.statusCode).json(response);
 	},
 

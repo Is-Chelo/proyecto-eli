@@ -1,4 +1,4 @@
-const {cursos, aulas, tipo_cursos, modulos, plan_estudios} = require('../models/index');
+const {cursos, aulas, tipo_cursos, modulos, plan_estudios, sequelize} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -13,20 +13,54 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		try {
-			const response = await cursos.findAll({
-				include: [
-					{model: aulas},
-					{model: tipo_cursos},
-					{model: modulos},
-					{model: plan_estudios},
-				],
-			});
+		// try {
+		// 	const response = await cursos.findAll({
+		// 		include: [
+		// 			{model: aulas},
+		// 			{model: tipo_cursos},
+		// 			{model: modulos},
+		// 			{model: plan_estudios},
+		// 		],
+		// 	});
 
-			return Successful('Operacion Exitosa', response);
+		// 	return Successful('Operacion Exitosa', response);
+		// } catch (error) {
+		// 	console.log(error);
+		// 	return InternalServer('Error en el servidor');
+		// }
+		// ! CORREGIR CON SEQUELIZE
+		try {
+			const [cursosResult] = await cursos.findAll();
+			const [tipoCursoResult] = await tipo_cursos.findAll();
+			const [aulasResult] = await aulas.findAll();
+
+			// const [personalResult] = await sequelize.query(`
+			// 	SELECT *
+			// 	FROM personal;
+			// 	`);
+
+			const cursosFormatted = cursosResult.map((curso) => {
+				const tipoCursoInfo = tipoCursoResult.find(
+					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
+				);
+				const aulaInfo = aulasResult.find((aula) => aula.id === curso.id_aula);
+				// const personalInfo = personalResult.find(
+				// 	(personal) => personal.id === curso.id_personal
+				// );
+
+				return {
+					...curso,
+					tipo_curso: tipoCursoInfo,
+					aula: aulaInfo,
+					// personal: personalInfo,
+				};
+			});
+			return Successful('Operacion Exitosa', cursosFormatted);
+			// res.json(cursosFormatted);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			return InternalServer('Error en el servidor');
+			// res.status(500).send(error.message);
 		}
 	},
 

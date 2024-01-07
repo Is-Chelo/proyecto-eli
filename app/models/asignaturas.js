@@ -20,7 +20,25 @@ module.exports = (sequelize, DataTypes) => {
 			// define association here
 		}
 
-    
+		fromDataModel() {
+			return {
+				id: this.id,
+				id_carrera: this.id_carrera,
+				id_modulo: this.id_modulo,
+				fecha_inicio: this.fecha_inicio,
+				fecha_fin: this.fecha_fin,
+				id_personal: this.id_personal,
+				hora_inicio: this.hora_inicio,
+				dias: this.dias,
+				encargado: this.encargado,
+				modalidad: this.modalidad,
+				cantidad_horas: this.cantidad_horas,
+				id_aula: this.id_aula,
+				anio: this.anio,
+				createdAt: this.createdAt,
+				updatedAt: this.updatedAt,
+			};
+		}
 	}
 	asignaturas.init(
 		{

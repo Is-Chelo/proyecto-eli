@@ -3,6 +3,7 @@ const asignaturasService = require('../../services/asignaturasService');
 module.exports = {
 	async index(req, res) {
 		const response = await asignaturasService.index(req.query);
+		console.log(response);
 		res.status(response.statusCode).json(response);
 	},
 	async show(req, res) {

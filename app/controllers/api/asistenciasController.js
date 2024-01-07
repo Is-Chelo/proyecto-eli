@@ -7,7 +7,7 @@ module.exports = {
 	},
 	async show(req, res) {
 		const { id } = req.params
-		const response = await asistenciasService.show(id);
+		const response = await asistenciasService.show(id, req.query);
 		res.status(response.statusCode).json(response);
 	},
 	async create(req, res) {
