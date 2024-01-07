@@ -150,13 +150,10 @@ module.exports = {
 			});
 
 			return Successful('Personal type added', []);
-
-			// res.json({message: 'Personal type added'});
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
-			// res.status(500);
-			// res.send(error.message);
+			
 		}
 	},
 

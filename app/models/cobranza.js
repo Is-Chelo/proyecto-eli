@@ -1,39 +1,35 @@
 'use strict';
 const {Model} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-	class role extends Model {
+	class cobranza extends Model {
 		/**
 		 * Helper method for defining associations.
 		 * This method is not a part of Sequelize lifecycle.
 		 * The `models/index` file will call this method automatically.
 		 */
 		static associate(models) {
-			this.hasMany(models.role_module, {
-				foreignKey: 'id_rol',
-			});
-
-			this.hasMany(models.user, {
-				foreignKey: 'id_rol',
-			});
+			// define association here
 		}
 
 		fromDataModel() {
 			return {
 				id: this.id,
-				nombre: this.name,
-				estado: this.active === 0 ? false : true,
+				id_registro: this.id_registro,
+				mensualidad: this.mensualidad,
+				certificado: this.certificado,
 			};
 		}
 	}
-	role.init(
+	cobranza.init(
 		{
-			name: DataTypes.STRING,
-			active: DataTypes.BOOLEAN,
+			id_registro: DataTypes.INTEGER,
+			mensualidad: DataTypes.TEXT,
+			certificado: DataTypes.FLOAT,
 		},
 		{
 			sequelize,
-			modelName: 'role',
+			modelName: 'cobranza',
 		}
 	);
-	return role;
+	return cobranza;
 };

@@ -11,6 +11,7 @@ module.exports = {
 		await queryInterface.bulkInsert('carreras', carreras);
 		await queryInterface.bulkInsert('cursos', cursos);
 		await queryInterface.bulkInsert('personal', personal);
+		await queryInterface.bulkInsert('roles', roles);
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -22,6 +23,7 @@ module.exports = {
 		await queryInterface.bulkDelete('carreras', null, {});
 		await queryInterface.bulkDelete('cursos', null, {});
 		await queryInterface.bulkDelete('personal', null, {});
+		await queryInterface.bulkDelete('roles', null, {});
 	},
 };
 
@@ -255,6 +257,14 @@ const personal = [
 		profesion: null,
 		universidad: null,
 	},
+];
+
+const roles = [
+	{id: 1, name: 'Admin', active: true},
+	{id: 2, name: 'Academico', active: true},
+	{id: 3, name: 'Contador', active: true},
+	{id: 4, name: 'Asesor', active: true},
+	{id: 5, name: 'Docente', active: true},
 ];
 
 const modules = [

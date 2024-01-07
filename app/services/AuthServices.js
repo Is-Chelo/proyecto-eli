@@ -66,9 +66,9 @@ module.exports = {
 
 	async login(req, res) {
 		try {
-			const {username, password} = req.body;
+			const {email, username, password} = req.body;
 			// TODO: verificar si el usuario existe
-			const user = await this.findByUserNameOrEmail(username, username);
+			const user = await this.findByUserNameOrEmail(username, email);
 			if (!user) return NotFoundResponse('Usuario no encontrado');
 
 			// TODO sacamos el rol para ver si tiene un rol asignado
@@ -76,71 +76,26 @@ module.exports = {
 				return BadRequest('El usuario no tiene un rol Asignado');
 			}
 
-			// *: VERIFICAMOS SI ES DOCENTE Y SI TIENE UN CONTRATO
-			if (user.id_rol == 2) {
-				const teacherFind = await teacher.findOne({
-					where: {
-						id_user: user.id,
-					},
-				});
+			// const menu = await rol_module.findAll({
+			// 	where: {
+			// 		id_rol: user.id_rol,
+			// 	},
+			// 	include: [
+			// 		{
+			// 			model: modulo,
+			// 			where: {
+			// 				url: {
+			// 					[Op.not]: '/api/v1/role-module',
+			// 				},
+			// 			},
+			// 		},
+			// 	],
+			// });
 
-				const contractFind = await teacher_contracts.findOne({
-					where: {
-						teacher_id: teacherFind.id,
-						active: true,
-					},
-				});
-				if (contractFind === null) {
-					return {
-						status: false,
-						statusCode: 404,
-						message: [
-							'El docente no cuenta con un contrato en curso, no puede acceder al sistema.',
-						],
-					};
-				} else {
-					const dateNow = moment().format('YYYY-MM-DD');
-					const dateEnd = moment(contractFind.date_end).format('YYYY-MM-DD');
-					if (dateEnd < dateNow) {
-						await teacher_contracts.update(
-							{
-								active: false,
-							},
-							{
-								where: {
-									id: contractFind.id,
-								},
-							}
-						);
-						return {
-							status: false,
-							statusCode: 404,
-							message: [
-								'El contrato del docente ya culminó, no puede acceder al sistema',
-							],
-						};
-					}
-				}
-			}
+			// const dataTransform = Object.values(menu).map((data) => {
+			// 	return menuTransform(data.dataValues);
+			// });
 
-			const menu = await rol_module.findAll({
-				where: {
-					id_rol: user.id_rol,
-				},
-				include: [
-					{
-						model: modulo,
-						where: {
-							url: {
-								[Op.not]: '/api/v1/role-module',
-							},
-						},
-					},
-				],
-			});
-			const dataTransform = Object.values(menu).map((data) => {
-				return menuTransform(data.dataValues);
-			});
 			// TODO comparar contraseñas
 			const compararClaves = await bcrypt.compare(password, user.password);
 			// TODO generar el jwt con los datos del usuario  si compararClaves es true
@@ -167,7 +122,7 @@ module.exports = {
 						name: user.name,
 						email: user.email,
 						rol: user.id_rol,
-						menu: dataTransform,
+						// menu: dataTransform,
 					},
 				};
 			} else {
