@@ -45,9 +45,7 @@ module.exports = {
 					id: id,
 				},
 			});
-
 			if (!response) return NotFoundResponse(`estudiantes con el id: ${id} no existe. `);
-
 			return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
