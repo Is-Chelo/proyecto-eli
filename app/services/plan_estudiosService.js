@@ -1,4 +1,5 @@
 const {plan_estudios, carreras, modulos, sequelize} = require('../models/index');
+const Filter = require('../utils/filter');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 
 module.exports = {
@@ -14,41 +15,30 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		// try {
-		// 	const response = await plan_estudios.findAll({
-		// 		include: [{model: carreras}, {model: modulos}],
-		// 	});
-
-		// 	return Successful('Operacion Exitosa', response);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
-
 		try {
-			// const connection = await getConnection();
 			const {anio} = params;
-			const queryParams = [];
-			let planQuery = 'SELECT * FROM plan_estudios';
-
+			let planEstudio = [];
 			if (anio) {
-				planQuery += `WHERE anio = ${anio}`;
-				// queryParams.push(anio);
+				planEstudio = await plan_estudios.findAll({
+					where: {
+						anio,
+					},
+				});
+			} else {
+				planEstudio = await plan_estudios.findAll();
 			}
 
-			const [planEstudio] = await sequelize.query(planQuery);
-
 			const [modulosREsult] = await modulos.findAll();
-			//  .query('SELECT * FROM modulos');
 
-			const dataFormat = planEstudio.map((item) => {
+			const dataFormat = Object.values(planEstudio).map((item) => {
 				let moduloData = [];
-
 				try {
-					const idModulosArray = JSON.parse(item.id_modulos);
-					moduloData = idModulosArray.map((moduleId) =>
-						Object.values(modulosREsult).find((mod) => mod.id === moduleId)
-					);
+					if (item.id_modulos) {
+						const idModulosArray = JSON.parse(item.id_modulos);
+						moduloData = idModulosArray.map((moduleId) => {
+							return Object.values(modulosREsult).find((mod) => mod.id === moduleId);
+						});
+					}
 				} catch (error) {
 					console.error('Error parsing JSON:', error);
 				}
@@ -59,11 +49,9 @@ module.exports = {
 				};
 			});
 			return Successful('Operacion Exitosa', dataFormat[0]);
-			// res.json(dataFormat[0]);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
-			// res.status(500).send(error.message);
 		}
 	},
 

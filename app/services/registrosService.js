@@ -14,41 +14,6 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		// try {
-		// 	const registrosResult = await registros.findAll({
-		// 		include: [{model: estudiantes}, {model: cursos}],
-		// 	});
-
-		// 	if (Object.keys(params).length > 0) {
-		// 		response = await Filter.applyFilter(params, registros);
-		// 	}
-
-		// 	const cursosResult = await cursos.findAll();
-		// 	const estudiantesResult = await estudiantes.findAll();
-
-		// 	const registrosFormatted = Object.values(registrosResult).map((registro) => {
-		// 		const estudianteInfo = estudiantesResult.find(
-		// 			(estudiante) => estudiante.id === registro.id_estudiante
-		// 		);
-		// 		const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
-		// 		// const personalInfo = personalResult.find(
-		// 		// 	(personal) => personal.id === registro.id_personal
-		// 		// );
-
-		// 		return {
-		// 			...registro,
-		// 			estudiante: estudianteInfo,
-		// 			// personal: personalInfo,
-		// 			curso: cursoInfo,
-		// 		};
-		// 	});
-
-		// 	return Successful('Operacion Exitosa', registrosFormatted);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
-
 		try {
 			const {id_estudiante} = params;
 
