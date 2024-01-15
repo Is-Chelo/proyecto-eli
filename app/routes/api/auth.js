@@ -29,9 +29,9 @@ router.post(
 	[
 		check('username', 'El username es requerido').trim().escape().not().isEmpty(),
 		check('password', 'La password es requerida').trim().escape().not().isEmpty(),
-		check('password', 'La password debe ser mayor a 6 caracteres').isLength({
-			min: 6,
-		}),
+		// check('password', 'La password debe ser mayor a 6 caracteres').isLength({
+		// 	min: 6,
+		// }),
 		validateFields,
 	],
 	authController.login

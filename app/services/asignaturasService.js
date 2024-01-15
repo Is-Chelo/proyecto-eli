@@ -26,7 +26,7 @@ module.exports = {
 		try {
 			const {anio} = params;
 			const queryParams = [];
-			let cursosQuery = `
+			let asignaturaQuery = `
 				SELECT *
 				FROM asignaturas
 				`;
@@ -36,17 +36,15 @@ module.exports = {
 			}
 
 			if (queryParams.length > 0) {
-				cursosQuery += ` WHERE ${queryParams.join(' AND ')}`;
+				asignaturaQuery += ` WHERE ${queryParams.join(' AND ')}`;
 			}
-
-			const [cursosResult] = await sequelize.query(cursosQuery);
-
-			const [modulosResult] = await modulos.findAll();
-			const [carrerasResult] = await carreras.findAll();
-			const [aulasResult] = await aulas.findAll();
+			const [asignaturaResult] = await sequelize.query(asignaturaQuery);
+			const [modulosResult] = await sequelize.query("SELECT * FROM modulos");
+			const [carrerasResult] = await sequelize.query("SELECT * FROM carreras");
+			const [aulasResult] = await sequelize.query("SELECT * FROM aulas");
 			const [personalResult] = await sequelize.query('SELECT * FROM personals');
 
-			const cursosFormatted = cursosResult.map((curso) => {
+			const asignaturasFormatted = asignaturaResult.map((curso) => {
 				const aulaInfo = Object.values(aulasResult).find(
 					(aula) => aula.id === curso.id_aula
 				);
@@ -59,9 +57,10 @@ module.exports = {
 				const personalInfo = Object.values(personalResult).find(
 					(personal) => personal.id === curso.id_personal
 				);
-				const encargado = Object.values(personalResult).find(
+				const data_encargado = Object.values(personalResult).find(
 					(personal) => personal.id === curso.encargado
 				);
+				console.log('encargado',aulaInfo);
 
 				return {
 					...curso,
@@ -69,10 +68,10 @@ module.exports = {
 					personal: personalInfo,
 					modulos: moduloInfo,
 					carreras,
-					encargado,
+					data_encargado,
 				};
 			});
-			return Successful('Operacion Exitosa', cursosFormatted);
+			return Successful('Operacion Exitosa', asignaturasFormatted);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -82,12 +81,12 @@ module.exports = {
 	// * funcion para listar un item
 	async show(id) {
 		try {
-			const cursosResult = await cursos.findOne({where: {id}});
+			const asignaturaResult = await cursos.findOne({where: {id}});
 			const tipoCursoResult = await tipo_cursos.findAll();
 			const aulasResult = await aulas.findAll();
 			const personalResult = await personal.findAll();
 
-			const cursosFormatted = Object.values(cursosResult).map((curso) => {
+			const asignaturasFormatted = Object.values(asignaturaResult).map((curso) => {
 				const tipoCursoInfo = Object.values(tipoCursoResult).find(
 					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
 				);
@@ -105,7 +104,7 @@ module.exports = {
 					personal: personalInfo,
 				};
 			});
-			return Successful('Operacion Exitosa', cursosFormatted);
+			return Successful('Operacion Exitosa', asignaturasFormatted);
 		} catch (error) {
 			console.error(error);
 			return InternalServer('Error en el servidor');

@@ -35,6 +35,8 @@ module.exports = (sequelize, DataTypes) => {
 				cantidad_horas: this.cantidad_horas,
 				id_aula: this.id_aula,
 				anio: this.anio,
+				precio_contado: this.precio_contado,
+				precio_cuotas: this.precio_cuotas,
 				createdAt: this.createdAt,
 				updatedAt: this.updatedAt,
 			};
@@ -54,6 +56,8 @@ module.exports = (sequelize, DataTypes) => {
 			cantidad_horas: DataTypes.FLOAT,
 			id_aula: DataTypes.INTEGER,
 			anio: DataTypes.INTEGER,
+			precio_contado: DataTypes.FLOAT,
+			precio_cuotas: DataTypes.FLOAT,
 		},
 		{
 			sequelize,

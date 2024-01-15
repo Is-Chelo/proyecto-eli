@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
 			this.hasMany(models.registros_carreras, {
 				foreignKey: 'id_curso',
 			});
+			this.belongsTo(models.personal, {
+				foreignKey: 'id_personal',
+			});
+			
 			// define association here
 		}
 	}
@@ -45,6 +49,9 @@ module.exports = (sequelize, DataTypes) => {
 			id_tipo_curso: DataTypes.INTEGER,
 			id_modulos: DataTypes.STRING,
 			id_plan_estudio: DataTypes.INTEGER,
+			precio_contado: DataTypes.FLOAT,
+			precio_cuotas: DataTypes.FLOAT,
+			encargado: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

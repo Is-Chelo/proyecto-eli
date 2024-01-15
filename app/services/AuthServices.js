@@ -1,8 +1,8 @@
-const {user, module: modulo, rol_module, role} = require('../models/index');
+const { user, module: modulo, rol_module, role } = require('../models/index');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {Op} = require('sequelize');
-const {NotFoundResponse, BadRequest, InternalServer} = require('../utils/response');
+const { Op } = require('sequelize');
+const { NotFoundResponse, BadRequest, InternalServer } = require('../utils/response');
 const moment = require('moment');
 
 // const {menuTransform} = require('./utils/menu-transform');
@@ -11,58 +11,7 @@ const moment = require('moment');
 
 // const sendEmail = require('./SendEmailService');
 module.exports = {
-	// async register(body) {
-	// 	const {password, email, username} = body;
-	// 	try {
-	// 		if (this.validateDateBirth(body.date_birth))
-	// 			return BadRequest(
-	// 				'No puede registrar la fecha de nacimiento, el mismo dia que hoy o superior.'
-	// 			);
-	// 		// TODO: verificamos que no exista un usuario con ese email
-	// 		const usuarioExiste = await this.findByUserNameOrEmail(username, email);
 
-	// 		if (usuarioExiste) {
-	// 			return BadRequest('Usuario con ese email o username ya esta registrado.');
-	// 		}
-
-	// 		// TODO: haseamos clave
-	// 		const claveNueva = await bcrypt.hash(password, 10);
-	// 		// TODO: Creamos usuario
-	// 		const userNew = await user.create({
-	// 			name: body.name,
-	// 			last_name: body.last_name,
-	// 			date_birth: body.date_birth,
-	// 			address: body.address,
-	// 			cellphone: body.cellphone,
-	// 			username: body.username,
-	// 			ci_expedition: body.ci_expedition,
-	// 			ci_number: body.ci_number,
-	// 			password: claveNueva,
-	// 			active: true,
-	// 			id_rol: body.rol !== null || body.rol !== undefined ? body.rol : 1,
-	// 			email,
-	// 		});
-	// 		return {
-	// 			status: true,
-	// 			statusCode: 201,
-	// 			message: ['Registro exitoso'],
-	// 			data: {
-	// 				id: userNew.id,
-	// 				name: userNew.name,
-	// 				email: userNew.email,
-	// 				rol: userNew.id_rol,
-	// 			},
-	// 		};
-	// 	} catch (error) {
-	// 		console.log(error);
-	// 		if (error.parent?.errno === 1062) {
-	// 			const regex = /'([^']*)'/; // Expresión regular para extraer la subcadena entre comillas simples
-	// 			const resultado = error.parent.sqlMessage.match(regex)[1];
-	// 			return BadRequest(`Ya exite un documento de identidad con el nro ${resultado}`);
-	// 		}
-	// 		return InternalServer('Error en el servidor');
-	// 	}
-	// },
 
 	async login(req, res) {
 		try {
@@ -134,8 +83,9 @@ module.exports = {
 		}
 	},
 
+
 	async update(id, body) {
-		const {password, email, username, ...res} = body;
+		const { password, email, username, ...res } = body;
 
 		try {
 			if (this.validateDateBirth(body.date_birth))
@@ -194,14 +144,14 @@ module.exports = {
 
 	async findByUserNameOrEmail(username = '', email = '') {
 		const userExits = await user.findOne({
-			where: {[Op.or]: [{username}, {email}]},
+			where: { [Op.or]: [{ username }, { email }] },
 		});
 
 		if (!userExits) return false;
 
 		return userExits;
 	},
-
+	
 	validateDateBirth(datePerson) {
 		const dateNow = moment().format('YYYY-MM-DD');
 		const personDate = datePerson;
@@ -222,7 +172,7 @@ module.exports = {
 				return NotFoundResponse(`El usuario con el id: ${id} que solicitas no existe `);
 			}
 			await user.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 
 			return {
@@ -239,13 +189,13 @@ module.exports = {
 
 	async sendEmail(email) {
 		const user = await user.findOne({
-			where: {email},
+			where: { email },
 		});
 		if (!user) {
 			return NotFoundResponse(`Usuario con el email: ${email} no existe. `);
 		}
 
-		const token = jwt.sign({id: user.id}, process.env.SECRET_KEY, {
+		const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
 			expiresIn: '1h',
 		});
 
@@ -258,7 +208,7 @@ module.exports = {
 	},
 
 	async resetPassword(body) {
-		const {password, id, token} = body;
+		const { password, id, token } = body;
 		console.log('TOKEN: ', token);
 		try {
 			const user = await user.findOne({
@@ -283,7 +233,7 @@ module.exports = {
 						});
 						return res
 							.status(400)
-							.json({message: 'El token expiro intente nuevamente'});
+							.json({ message: 'El token expiro intente nuevamente' });
 					}
 				}
 			);

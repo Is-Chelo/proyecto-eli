@@ -95,21 +95,24 @@ module.exports = {
 
 	async getNotasModulo(id_registro, id_modulo) {
 		try {
-			//   const connection = await getConnection();
-			//   const { id_registro, id_modulo } = req.params;
-			const notasQuery = `
-				  SELECT *
-				  FROM notas
-				  WHERE id_registro = ${id_registro} AND id_modulo = ${id_modulo};
-			  `;
-
-			const notasResult = await sequelize.query(notasQuery);
-			return Successful('Datos', notasResult[0]);
-
-			// res.json(notasResult[0]);
+		  let notasQuery = 'SELECT * FROM notas WHERE 1=1';
+	  
+		  if (id_registro) {
+			notasQuery += ` AND id_registro = ${id_registro}`;
+		  }
+	  
+		  if (id_modulo) {
+			notasQuery += ` AND id_modulo = ${id_modulo}`;
+		  }
+	  
+		  const notasResult = await sequelize.query(notasQuery);
+	  
+		  console.log('notasResult', notasResult,'con',notasQuery);
+		  return Successful('Datos', notasResult[0]);
 		} catch (error) {
-			// res.status(500).send(error.message);
-			return InternalServer('Error en el servidor');
+		  console.error(error);
+		  return InternalServer('Error en el servidor');
 		}
-	},
+	  }
+	  
 };

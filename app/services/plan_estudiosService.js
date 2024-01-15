@@ -1,6 +1,6 @@
-const {plan_estudios, carreras, modulos, sequelize} = require('../models/index');
+const { plan_estudios, carreras, modulos, sequelize } = require('../models/index');
 const Filter = require('../utils/filter');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 
 module.exports = {
 	async create(body) {
@@ -16,7 +16,7 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const {anio} = params;
+			const { anio } = params;
 			let planEstudio = [];
 			if (anio) {
 				planEstudio = await plan_estudios.findAll({
@@ -25,10 +25,10 @@ module.exports = {
 					},
 				});
 			} else {
-				planEstudio = await plan_estudios.findAll();
+				planEstudio = await sequelize.query("SELECT * FROM plan_estudios");
 			}
 
-			const [modulosREsult] = await modulos.findAll();
+			const [modulosREsult] = await sequelize.query("SELECT * FROM modulos");
 
 			const dataFormat = Object.values(planEstudio).map((item) => {
 				let moduloData = [];
@@ -42,13 +42,17 @@ module.exports = {
 				} catch (error) {
 					console.error('Error parsing JSON:', error);
 				}
-
+			
+				const { dataValues, ...rest } = item;
+			
 				return {
-					...item,
 					modulos: moduloData,
+					...dataValues,
 				};
 			});
+			
 			return Successful('Operacion Exitosa', dataFormat[0]);
+			
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -62,7 +66,7 @@ module.exports = {
 				where: {
 					id: id,
 				},
-				include: [{model: carreras}, {model: modulos}],
+				include: [{ model: carreras }, { model: modulos }],
 			});
 
 			if (!response) return NotFoundResponse(`plan_estudios con el id: ${id} no existe. `);
@@ -113,7 +117,7 @@ module.exports = {
 				);
 
 			await plan_estudios.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 
 			return Successful('Registro eliminado', []);

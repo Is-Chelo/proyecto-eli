@@ -22,5 +22,7 @@ router.use('/asistencias', require('./asistencias.route'));
 router.use('/personal', require('./personal.route'));
 router.use('/cobranzas', require('./cobranzas.route'));
 router.use('/roles', require('./roles.route'));
+router.use('/promociones', require('./promociones.route'));
+router.use('/cobranzas-carreras', require('./cobranzas_carreras.route'));
 
 module.exports = router;

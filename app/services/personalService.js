@@ -178,4 +178,64 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
+	async login(req, res) {
+		try {
+			const { usuario, pass } = req.body;
+			// TODO: verificar si el usuario existe
+			const user = await this.findByUserNameOrEmail(usuario);
+			if (!user) return NotFoundResponse('Usuario no encontrado');
+
+			// TODO sacamos el rol para ver si tiene un rol asignado
+			if (user.id_rol === null) {
+				return BadRequest('El usuario no tiene un rol Asignado');
+			}
+
+		
+			// TODO comparar contraseñas
+			// const compararClaves = await bcrypt.compare(pass, user.pass);
+			// TODO generar el jwt con los datos del usuario  si compararClaves es true
+			if (pass==user.pass) {
+				tokenUser = jwt.sign(
+					{
+						id: user.id,
+						name: user.name,
+						email: user.email,
+						rol: user.id_rol,
+					},
+					process.env.SECRET_KEY,
+					{
+						expiresIn: '4h',
+					}
+				);
+				return {
+					status: true,
+					statusCode: 200,
+					message: ['Login exitoso.'],
+					data: {
+						token: tokenUser,
+						id: user.id,
+						name: user.name,
+						email: user.email,
+						rol: user.id_rol,
+						// menu: dataTransform,
+					},
+				};
+			} else {
+				return NotFoundResponse('La contraseña no coincide...');
+			}
+		} catch (error) {
+			console.log(error);
+			return InternalServer('Error en el servidor');
+		}
+	},
+	async findByUserNameOrEmail(usuario = '') {
+		const userExits = await personal.findOne({
+			where: { [Op.or]: [{ usuario }] },
+		});
+
+		if (!userExits) return false;
+
+		return userExits;
+	},
+
 };

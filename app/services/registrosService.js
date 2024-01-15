@@ -1,5 +1,5 @@
-const {registros, estudiantes, cursos, sequelize} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const { registros, estudiantes, cursos, sequelize } = require('../models/index');
+const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 
 module.exports = {
 	async create(body) {
@@ -15,7 +15,7 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const {id_estudiante} = params;
+			const { id_estudiante } = params;
 
 			let registrosQuery = `
 				SELECT *
@@ -47,6 +47,7 @@ module.exports = {
 				FROM personals;
 			`;
 			const [personalResult] = await sequelize.query(personalQuery);
+			const [promocionesResult] = await sequelize.query('SELECT * FROM promociones');
 
 			const registrosFormatted = registrosResult.map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
@@ -56,12 +57,16 @@ module.exports = {
 				const personalInfo = personalResult.find(
 					(personal) => personal.id === registro.id_personal
 				);
+				const PromocionInfo=promocionesResult.find(
+					(promocion)=>promocion.id===registro.id_promocion
+				  )
 
 				return {
 					...registro,
 					estudiante: estudianteInfo,
 					personal: personalInfo,
 					curso: cursoInfo,
+					promocion:PromocionInfo
 				};
 			});
 			return Successful('Operacion Exitosa', registrosFormatted);
@@ -78,7 +83,7 @@ module.exports = {
 				where: {
 					id: id,
 				},
-				include: [{model: estudiantes}, {model: cursos}],
+				include: [{ model: estudiantes }, { model: cursos }],
 			});
 
 			if (!response) return NotFoundResponse(`registros con el id: ${id} no existe. `);
@@ -127,7 +132,7 @@ module.exports = {
 				NotFoundResponse(`La registros con el id: ${id} que solicitas no existe `);
 
 			await registros.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 			return Successful('Registro eliminado', []);
 		} catch (error) {
@@ -139,24 +144,20 @@ module.exports = {
 	// * Funcion para ver curso
 	async getRegistrosByCurso(id_curso) {
 		try {
-			const registrosResult = await registros.findOne({
-				where: {
-					id_curso: id_curso,
-				},
-			});
-
+			const registrosResult = await sequelize.query(`SELECT * FROM registros WHERE id_curso = ${id_curso}`);
+			console.log('registrosResult', registrosResult);
 			if (!registrosResult)
 				return NotFoundResponse(
 					`El curso con ese id: ${id_curso} que solicitas no existe.`
 				);
 
-			const cursosResult = await cursos.findAll();
-			const estudiantesResult = await estudiantes.findAll();
-
-			// TODO: FALTA EL PERSONAL
+			const [cursosResult] = await sequelize.query('SELECT * FROM cursos');
+			const [estudiantesResult] = await sequelize.query('SELECT * FROM estudiantes');
 			const [personalResult] = await sequelize.query('SELECT * FROM personals');
+			const [cobranzasResult] = await sequelize.query('SELECT * FROM cobranzas');
+			const [promocionesResult] = await sequelize.query('SELECT * FROM promociones');
 
-			const registrosFormatted = Object.values(registrosResult).map((registro) => {
+			const registrosFormatted = Object.values(registrosResult[0]).map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
 					(estudiante) => estudiante.id === registro.id_estudiante
 				);
@@ -165,12 +166,21 @@ module.exports = {
 				const personalInfo = personalResult.find(
 					(personal) => personal.id === registro.id_personal
 				);
+				const cobranzaInfo=cobranzasResult.find(
+					(cobranza)=>cobranza.id_registro===registro.id
+				  )
+				  const PromocionInfo=promocionesResult.find(
+					(promocion)=>promocion.id===registro.id_promocion
+				  )
 
 				return {
 					...registro,
 					estudiante: estudianteInfo,
 					personal: personalInfo,
 					curso: cursoInfo,
+					mensualidad:cobranzaInfo?cobranzaInfo.mensualidad:null,
+					id_cobranza:cobranzaInfo?.id,
+					promocion:PromocionInfo
 				};
 			});
 

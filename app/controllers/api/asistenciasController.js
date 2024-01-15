@@ -28,7 +28,8 @@ module.exports = {
 	},
 	async getAsistencia(req, res) {
 		const { id_registro } = req.params
-		const response = await asistenciasService.getAsistencia( id_registro );
+		const { fecha } = req.query; 
+		const response = await asistenciasService.getAsistencia( id_registro, fecha );
 		res.status(response.statusCode).json(response);
 	},
 

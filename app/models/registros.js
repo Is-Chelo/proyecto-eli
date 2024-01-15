@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
 			condicion: DataTypes.STRING,
 			fecha_registro: DataTypes.DATE,
 			fecha_programacion: DataTypes.DATE,
+			id_promocion: DataTypes.INTEGER
 		},
 		{
 			sequelize,

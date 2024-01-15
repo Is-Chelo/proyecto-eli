@@ -1,5 +1,5 @@
-const {cursos, aulas, tipo_cursos, modulos, plan_estudios, personal, sequelize} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const { cursos, aulas, tipo_cursos, modulos, plan_estudios, personal, sequelize } = require('../models/index');
+const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 
 module.exports = {
 	async create(body) {
@@ -14,12 +14,11 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const [cursosResult] = await cursos.findAll();
+			const [cursosResult] = await cursos.sequelize.query('SELECT * FROM cursos');
 
 			const [tipoCursoResult] = await sequelize.query('SELECT * FROM tipo_cursos');
-			const [aulasResult] = await aulas.findAll();
-
-			const [personalResult] = await personal.findAll();
+			const [aulasResult] = await sequelize.query('SELECT * FROM aulas');
+			const [personalResult] = await sequelize.query('SELECT * FROM personals');
 
 			const cursosFormatted = Object.values(cursosResult).map((curso) => {
 				const tipoCursoInfo = Object.values(tipoCursoResult).find(
@@ -28,8 +27,12 @@ module.exports = {
 				const aulaInfo = Object.values(aulasResult).find(
 					(aula) => aula.id === curso.id_aula
 				);
+
 				const personalInfo = Object.values(personalResult).find(
 					(personal) => personal.id === curso.id_personal
+				);
+				const encargado = Object.values(personalResult).find(
+					(encargado) => encargado.id === curso.encargado
 				);
 
 				return {
@@ -37,6 +40,7 @@ module.exports = {
 					tipo_curso: tipoCursoInfo,
 					aula: aulaInfo,
 					personal: personalInfo,
+					encargado
 				};
 			});
 			return Successful('Operacion Exitosa', cursosFormatted);
@@ -54,10 +58,11 @@ module.exports = {
 					id: id,
 				},
 				include: [
-					{model: aulas},
-					{model: tipo_cursos},
-					{model: modulos},
-					{model: plan_estudios},
+					{ model: aulas },
+					{ model: tipo_cursos },
+					{ model: modulos },
+					{ model: plan_estudios },
+					{ model: personal },
 				],
 			});
 
@@ -71,6 +76,7 @@ module.exports = {
 
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
+		console.log('cursos update', body);
 		try {
 			const response = await cursos.findOne({
 				where: {
@@ -106,7 +112,7 @@ module.exports = {
 				return NotFoundResponse(`La cursos con el id: ${id} que solicitas no existe `);
 
 			await cursos.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 			return Successful('Registro eliminado', response);
 		} catch (error) {

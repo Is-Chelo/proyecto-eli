@@ -22,6 +22,10 @@ check('fecha_registro', 'El fecha_registro es requerido').trim().escape().not().
 check('fecha_programacion', 'El fecha_programacion es requerido').trim().escape().not().isEmpty(),
 check('comentario', 'El comentario es requerido').trim().escape().not().isEmpty(),
 check('modalidad', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('encargado', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('modulos', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('precio_contado', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('precio_cuotas', 'El modalidad es requerido').trim().escape().not().isEmpty(),
 ], 
     
  cursosControllerController.create);
@@ -40,6 +44,10 @@ check('fecha_registro', 'El fecha_registro es requerido').trim().escape().not().
 check('fecha_programacion', 'El fecha_programacion es requerido').trim().escape().not().isEmpty(),
 check('comentario', 'El comentario es requerido').trim().escape().not().isEmpty(),
 check('modalidad', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('encargado', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('modulos', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('precio_contado', 'El modalidad es requerido').trim().escape().not().isEmpty(),
+check('precio_cuotas', 'El modalidad es requerido').trim().escape().not().isEmpty(),
 ], 
     
 cursosControllerController.update);

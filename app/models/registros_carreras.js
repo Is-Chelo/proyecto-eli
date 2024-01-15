@@ -29,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
 			fecha_programacion: DataTypes.DATE,
 			comentario: DataTypes.STRING,
 			modalidad: DataTypes.STRING,
+			id_promocion: DataTypes.INTEGER,
+			id_asignaturas: DataTypes.STRING,
 		},
 		{
 			sequelize,

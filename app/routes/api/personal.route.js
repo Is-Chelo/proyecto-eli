@@ -13,4 +13,5 @@ router.put( '/:id', personalController.update );
 router.get('/:id', personalController.show);
 router.delete('/:id', personalController.delete);
 
+
 module.exports = router;

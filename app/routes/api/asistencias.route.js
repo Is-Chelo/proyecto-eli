@@ -31,7 +31,6 @@ router.put(
 
 	asistenciasControllerController.update
 );
-router.get('/:id', asistenciasControllerController.show);
 router.delete('/:id', asistenciasControllerController.delete);
 
 router.get("/:id_registro", asistenciasControllerController.getAsistencia);

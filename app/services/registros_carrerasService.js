@@ -1,10 +1,10 @@
-const {registros_carreras, estudiantes, cursos, sequelize} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const { registros_carreras, estudiantes, cursos, sequelize } = require('../models/index');
+const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 
 module.exports = {
 	async create(body) {
 		try {
-			const response = (await registros) - carreras.create(body);
+			const response = await registros_carreras.create(body);
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
@@ -15,7 +15,7 @@ module.exports = {
 	async index(params = []) {
 		try {
 			const response = await registros_carreras.findAll({
-				include: [{model: estudiantes}, {model: cursos}],
+				include: [{ model: estudiantes }, { model: cursos }],
 			});
 
 			return Successful('Operacion Exitosa', response);
@@ -32,7 +32,7 @@ module.exports = {
 				where: {
 					id: id,
 				},
-				include: [{model: estudiantes}, {model: cursos}],
+				include: [{ model: estudiantes }, { model: cursos }],
 			});
 
 			if (!response)
@@ -87,7 +87,7 @@ module.exports = {
 			}
 
 			await registros_carreras.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 
 			return Successful('Registro eliminado', []);
@@ -103,7 +103,7 @@ module.exports = {
 				where: {
 					id_curso: id_curso,
 				},
-				include: [{model: estudiantes}, {model: cursos}],
+				include: [{ model: estudiantes }, { model: cursos }],
 			});
 
 			if (!response)
@@ -138,7 +138,7 @@ module.exports = {
 
 	async getRegistros(params) {
 		try {
-			const {id_estudiante, id_carrera, anio} = params;
+			const { id_estudiante, id_carrera, anio, id_asignatura } = params;
 
 			const queryParams = [];
 			let registrosQuery = `
@@ -155,12 +155,17 @@ module.exports = {
 			if (id_carrera) {
 				queryParams.push(`id_curso = ${id_carrera}`);
 			}
+			if (id_asignatura) {
+				queryParams.push(`id_asignaturas  = '%${id_asignatura}%'`);
 
+			}
 			if (queryParams.length > 0) {
 				registrosQuery += ` WHERE ${queryParams.join(' AND ')}`;
 			}
 
+
 			registrosQuery += ';';
+			console.log('registrosQuery',registrosQuery);
 
 			const [registrosResult] = await sequelize.query(registrosQuery);
 
@@ -178,6 +183,23 @@ module.exports = {
 			SELECT *
 			FROM personals;
 		  `);
+			const [promocionesResult] = await sequelize.query(`
+			SELECT *
+			FROM promociones;
+		  `);
+			const [modulosResult] = await sequelize.query(`
+			SELECT *
+			FROM modulos;
+		  `);
+			const [cobranzasResult] = await sequelize.query('SELECT * FROM cobranzas_carreras');
+			let asignatura = []
+			if (anio) {
+				//  [asignatura] = await sequelize.query(`SELECT * FROM asignaturas WHERE anio=${anio}`);
+				[asignatura] = await sequelize.query(`SELECT asignaturas.*, modulos.nombre  FROM asignaturas INNER JOIN modulos ON asignaturas.id_modulo = modulos.id WHERE asignaturas.anio = ${anio}`);
+			}
+
+
+
 
 			const registrosFormatted = registrosResult.map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
@@ -187,12 +209,23 @@ module.exports = {
 				const personalInfo = personalResult.find(
 					(personal) => personal.id === registro.id_personal
 				);
+				const promocion = promocionesResult.find(
+					(promocion) => promocion.id === registro.id_promocion
+				);
+				const cobranzaInfo = cobranzasResult.find(
+					(cobranza) => cobranza.id_registro_carrera === registro.id
+				)
+				const newregister = { ...registro, asignatura }
+
 
 				return {
-					...registro,
+					...newregister,
 					estudiante: estudianteInfo,
 					personal: personalInfo,
 					carrera,
+					promocion,
+					mensualidad: cobranzaInfo ? cobranzaInfo.mensualidad : null,
+					id_cobranza: cobranzaInfo?.id,
 				};
 			});
 			return Successful('Operacion Exitosa', registrosFormatted);
@@ -204,4 +237,6 @@ module.exports = {
 			// res.status(500).send(error.message);
 		}
 	},
+
+
 };

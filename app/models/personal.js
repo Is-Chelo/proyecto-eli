@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.cursos, {
+				foreignKey: 'id_personal',
+			});
     }
   }
   personal.init({
@@ -28,7 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     pago_por_hora: DataTypes.FLOAT,
     fecha_de_nacimiento: DataTypes.DATE,
     profesion: DataTypes.STRING,
-    universidad: DataTypes.STRING
+    universidad: DataTypes.STRING,
+    usuario: DataTypes.STRING,
+    pass: DataTypes.STRING,
+    firts: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'personal',

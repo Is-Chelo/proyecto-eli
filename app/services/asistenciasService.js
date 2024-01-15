@@ -43,7 +43,10 @@ module.exports = {
 				asistenciaQuery += `AND fecha = ${fecha}`;
 			}
 
-			const asistenciaResult = await asistencias.findOne({where: {id_registro: id_registro}});
+			const asistenciaResult = await sequelize.query(
+				asistenciaQuery,
+				queryParams
+			  );
 			return Successful('Operacion Exitosa', asistenciaResult.fromDataModel());
 		} catch (error) {
 			return InternalServer('Error en el servidor');
@@ -98,17 +101,23 @@ module.exports = {
 		}
 	},
 
-	async getAsistencia(id_registro) {
+	async getAsistencia(id_registro,fecha) {
+		console.log();
 		try {
-			// TODO: FALTA LA FECHA
-			const response = await asistencias.findOne({
-				where: {
-					id_registro: id_registro,
-				},
-				include: [{model: registros}],
-			});
-
-			return Successful('Operacion Exitosa', response);
+			let asistenciaQuery = 'SELECT * FROM asistencias WHERE 1=1';
+	  
+			if (id_registro) {
+			  asistenciaQuery += ` AND id_registro = ${id_registro}`;
+			}
+		
+			if (fecha) {
+			  asistenciaQuery += ` AND DATE(fecha) = '${fecha}'`;
+			}
+		
+			const asistenciaResult = await sequelize.query(asistenciaQuery);
+		
+			console.log('asistenciaResult', asistenciaResult,'con',asistenciaQuery);
+			return Successful('Datos', asistenciaResult[0]);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
