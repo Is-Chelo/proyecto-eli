@@ -82,18 +82,17 @@ module.exports = {
 					banco,
 					ci,
 					carrera_o_curso,
-					pago_por_hora:pago_por_hora==''?null:pago_por_hora,
+					pago_por_hora: pago_por_hora == '' ? null : pago_por_hora,
 					fecha_de_nacimiento,
 					profesion,
 					universidad,
-					id_user: userCreated.data.id
+					id_user: userCreated.data.id,
 				};
 				const response = await personal.create(personalData);
 				return Successful('Personal type added', []);
 			} else {
 				return userCreated;
 			}
-
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -183,7 +182,6 @@ module.exports = {
 				profesion,
 				universidad,
 			};
-			// const response = await personal.create(personalData);
 
 			await personal.update(personalData, {
 				where: {
@@ -195,7 +193,6 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
-			
 		}
 	},
 
@@ -211,18 +208,24 @@ module.exports = {
 			if (!response)
 				return NotFoundResponse(`La personal con el id: ${id} que solicitas no existe `);
 
+			await user.destroy({
+				where: {id: response.id_user},
+			});
+			
 			await personal.destroy({
 				where: {id: id},
 			});
+
 			return Successful('Registro eliminado', []);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+
 	async login(req, res) {
 		try {
-			const { usuario, pass } = req.body;
+			const {usuario, pass} = req.body;
 			// TODO: verificar si el usuario existe
 			const user = await this.findByUserNameOrEmail(usuario);
 			if (!user) return NotFoundResponse('Usuario no encontrado');
@@ -232,11 +235,10 @@ module.exports = {
 				return BadRequest('El usuario no tiene un rol Asignado');
 			}
 
-		
 			// TODO comparar contraseñas
 			// const compararClaves = await bcrypt.compare(pass, user.pass);
 			// TODO generar el jwt con los datos del usuario  si compararClaves es true
-			if (pass==user.pass) {
+			if (pass == user.pass) {
 				tokenUser = jwt.sign(
 					{
 						id: user.id,
@@ -272,12 +274,11 @@ module.exports = {
 	},
 	async findByUserNameOrEmail(usuario = '') {
 		const userExits = await personal.findOne({
-			where: { [Op.or]: [{ usuario }] },
+			where: {[Op.or]: [{usuario}]},
 		});
 
 		if (!userExits) return false;
 
 		return userExits;
 	},
-
 };
