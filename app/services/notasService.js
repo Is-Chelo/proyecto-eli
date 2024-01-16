@@ -101,9 +101,10 @@ module.exports = {
 			notasQuery += ` AND id_registro = ${id_registro}`;
 		  }
 	  
-		  if (id_modulo) {
+		  if (id_modulo!==undefined) {
 			notasQuery += ` AND id_modulo = ${id_modulo}`;
 		  }
+		  console.log('notasQuery',notasQuery);
 	  
 		  const notasResult = await sequelize.query(notasQuery);
 	  

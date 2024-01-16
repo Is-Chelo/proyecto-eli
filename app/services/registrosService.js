@@ -99,6 +99,7 @@ module.exports = {
 
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
+		let newbody=null
 		try {
 			const response = await registros.findOne({
 				where: {
@@ -109,8 +110,14 @@ module.exports = {
 			if (!response) {
 				return NotFoundResponse(`registros con el id: ${id} no existe.`);
 			}
+			if(body.fecha_programacion===''){
+				 newbody={...body, fecha_programacion: null}
+			}else{
+				
+				newbody=body
+			}
 
-			await registros.update(body, {
+			await registros.update(newbody, {
 				where: {
 					id: id,
 				},
