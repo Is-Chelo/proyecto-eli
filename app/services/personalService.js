@@ -44,7 +44,7 @@ module.exports = {
 				banco,
 				ci,
 				carrera_o_curso,
-				pago_por_hora,
+				pago_por_hora:pago_por_hora==''?null:pago_por_hora,
 				fecha_de_nacimiento,
 				profesion,
 				universidad,
