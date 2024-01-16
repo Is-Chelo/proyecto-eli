@@ -4,6 +4,7 @@ const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('..
 module.exports = {
 	async create(body) {
 		({body,fecha_programacion:null})
+		console.log({...body,fecha_programacion:null});
 		try {
 			const response = await registros.create(body);
 
