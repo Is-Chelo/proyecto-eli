@@ -1,4 +1,4 @@
-const {personal, sequelize} = require('../models/index');
+const {personal, user, sequelize} = require('../models/index');
 const Filter = require('../utils/filter');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
 const AuthServices = require('./AuthServices');
@@ -211,7 +211,7 @@ module.exports = {
 			await user.destroy({
 				where: {id: response.id_user},
 			});
-			
+
 			await personal.destroy({
 				where: {id: id},
 			});
