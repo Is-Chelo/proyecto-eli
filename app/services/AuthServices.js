@@ -1,8 +1,8 @@
-const { user, module: modulo, rol_module, role } = require('../models/index');
+const {user, module: modulo, rol_module, role} = require('../models/index');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Op } = require('sequelize');
-const { NotFoundResponse, BadRequest, InternalServer } = require('../utils/response');
+const {Op} = require('sequelize');
+const {NotFoundResponse, BadRequest, InternalServer} = require('../utils/response');
 const moment = require('moment');
 
 // const {menuTransform} = require('./utils/menu-transform');
@@ -11,8 +11,6 @@ const moment = require('moment');
 
 // const sendEmail = require('./SendEmailService');
 module.exports = {
-
-
 	async login(req, res) {
 		try {
 			const {email, username, password} = req.body;
@@ -83,9 +81,8 @@ module.exports = {
 		}
 	},
 
-
 	async update(id, body) {
-		const { password, email, username, ...res } = body;
+		const {password, email, username, ...res} = body;
 
 		try {
 			if (this.validateDateBirth(body.date_birth))
@@ -144,14 +141,14 @@ module.exports = {
 
 	async findByUserNameOrEmail(username = '', email = '') {
 		const userExits = await user.findOne({
-			where: { [Op.or]: [{ username }, { email }] },
+			where: {[Op.or]: [{username}, {email}]},
 		});
 
 		if (!userExits) return false;
 
 		return userExits;
 	},
-	
+
 	validateDateBirth(datePerson) {
 		const dateNow = moment().format('YYYY-MM-DD');
 		const personDate = datePerson;
@@ -172,7 +169,7 @@ module.exports = {
 				return NotFoundResponse(`El usuario con el id: ${id} que solicitas no existe `);
 			}
 			await user.destroy({
-				where: { id: id },
+				where: {id: id},
 			});
 
 			return {
@@ -189,13 +186,13 @@ module.exports = {
 
 	async sendEmail(email) {
 		const user = await user.findOne({
-			where: { email },
+			where: {email},
 		});
 		if (!user) {
 			return NotFoundResponse(`Usuario con el email: ${email} no existe. `);
 		}
 
-		const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
+		const token = jwt.sign({id: user.id}, process.env.SECRET_KEY, {
 			expiresIn: '1h',
 		});
 
@@ -208,7 +205,7 @@ module.exports = {
 	},
 
 	async resetPassword(body) {
-		const { password, id, token } = body;
+		const {password, id, token} = body;
 		console.log('TOKEN: ', token);
 		try {
 			const user = await user.findOne({
@@ -233,7 +230,7 @@ module.exports = {
 						});
 						return res
 							.status(400)
-							.json({ message: 'El token expiro intente nuevamente' });
+							.json({message: 'El token expiro intente nuevamente'});
 					}
 				}
 			);
@@ -254,6 +251,68 @@ module.exports = {
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
+		}
+	},
+
+	async createUser(body) {
+		try {
+			let errors = [];
+			if (body.name == null || body.name == undefined)
+				errors.push('Para crear un usuario el nombre es requerido');
+			if (body.last_name == null || body.last_name == undefined)
+				errors.push('Para crear un usuario el last_name es requerido');
+			if (body.email == null || body.email == undefined)
+				errors.push('Para crear un usuario el email es requerido');
+			if (body.cellphone == null || body.cellphone == undefined)
+				errors.push('Para crear un usuario el cellphone es requerido');
+			if (body.ci_number == null || body.ci_number == undefined)
+				errors.push('Para crear un usuario el ci_number es requerido');
+			if (body.username == null || body.username == undefined || body.username === '')
+				errors.push('Para crear un usuario el username es requerido');
+			if (body.password == null || body.password == undefined || body.password === '')
+				errors.push('Para crear un usuario el ci_number es requerido');
+			if (body.id_rol == null || body.id_rol == undefined)
+				errors.push('Para crear un usuario el id_rol es requerido');
+
+			// TODO: Validaciones
+			const user = await this.findByUserNameOrEmail(username, email);
+			if (user) return BadRequest('Un usuario con esas credenciales ya existe');
+
+			if (errors.length > 0) {
+				return {
+					status: false,
+					message: 'Usuario no creado por los siguientes errores',
+					errors,
+				};
+			}
+
+			// TODO: verificamos que no exista un usuario con ese email
+
+			let passwordNew = await bcrypt.hash(password, 10);
+
+			const response = await user.create({
+				name: body.name,
+				last_name: body.last_name,
+				email: body.email,
+				cellphone: body.cellphone,
+				ci_number: body.ci_number,
+				picture_image: body.picture_image,
+				username: body.username,
+				password: passwordNew,
+				active: body.active,
+				id_rol: body.id_rol,
+			});
+
+			return {
+				status: true,
+				message: 'Usuario creado',
+			};
+		} catch (error) {
+			console.log('error', error);
+			return {
+				status: false,
+				message: 'Usuario no creado',
+			};
 		}
 	},
 };

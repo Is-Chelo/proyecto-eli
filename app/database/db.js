@@ -9,7 +9,7 @@ const db = new Sequelize(config.database, config.username, config.password, {
 	dialect: 'mysql',
 	dialectModule: mysql2,
 	port: config.port,
-	logging: true,
+	logging: false,
 });
 
 module.exports = db;
