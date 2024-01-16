@@ -1,6 +1,7 @@
 const {personal, sequelize} = require('../models/index');
 const Filter = require('../utils/filter');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const AuthServices = require('./AuthServices');
 
 module.exports = {
 	async create(body) {
@@ -32,26 +33,67 @@ module.exports = {
 			) {
 				return BadRequest('Bad request. Please fill all field', []);
 			}
-			const personalData = {
-				id_rol,
-				apellido_paterno,
-				apellido_materno,
-				nombres,
-				telefono,
-				correo_electronico,
-				numero_de_cuenta,
-				tipo_de_cuenta,
-				banco,
-				ci,
-				carrera_o_curso,
-				pago_por_hora:pago_por_hora==''?null:pago_por_hora,
-				fecha_de_nacimiento,
-				profesion,
-				universidad,
-			};
-			const response = await personal.create(personalData);
+			// const personalData = {
+			// 	id_rol,
+			// 	apellido_paterno,
+			// 	apellido_materno,
+			// 	nombres,
+			// 	telefono,
+			// 	correo_electronico,
+			// 	numero_de_cuenta,
+			// 	tipo_de_cuenta,
+			// 	banco,
+			// 	ci,
+			// 	carrera_o_curso,
+			// 	pago_por_hora:pago_por_hora==''?null:pago_por_hora,
+			// 	fecha_de_nacimiento,
+			// 	profesion,
+			// 	universidad,
+			// };
+			// const response = await personal.create(personalData);
 
-			return Successful('Personal type added', []);
+			// return Successful('Personal type added', []);
+
+			const dataForUser = {
+				name: nombres,
+				last_name: `${apellido_paterno} ${apellido_materno}`,
+				email: correo_electronico,
+				cellphone: telefono,
+				ci_number: ci,
+				picture_image: null,
+				username: ci,
+				password: ci,
+				active: true,
+				date_birth: fecha_de_nacimiento,
+				id_rol,
+			};
+
+			const userCreated = await AuthServices.createUser(dataForUser);
+			if (userCreated.status) {
+				const personalData = {
+					id_rol,
+					apellido_paterno,
+					apellido_materno,
+					nombres,
+					telefono,
+					correo_electronico,
+					numero_de_cuenta,
+					tipo_de_cuenta,
+					banco,
+					ci,
+					carrera_o_curso,
+					pago_por_hora:pago_por_hora==''?null:pago_por_hora,
+					fecha_de_nacimiento,
+					profesion,
+					universidad,
+					id_user: userCreated.data.id
+				};
+				const response = await personal.create(personalData);
+				return Successful('Personal type added', []);
+			} else {
+				return userCreated;
+			}
+
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');

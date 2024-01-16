@@ -275,8 +275,8 @@ module.exports = {
 				errors.push('Para crear un usuario el id_rol es requerido');
 
 			// TODO: Validaciones
-			const user = await this.findByUserNameOrEmail(username, email);
-			if (user) return BadRequest('Un usuario con esas credenciales ya existe');
+			const userExists = await this.findByUserNameOrEmail(body.username, body.email);
+			if (userExists) return BadRequest('Un usuario con esas credenciales ya existe');
 
 			if (errors.length > 0) {
 				return {
@@ -288,7 +288,7 @@ module.exports = {
 
 			// TODO: verificamos que no exista un usuario con ese email
 
-			let passwordNew = await bcrypt.hash(password, 10);
+			let passwordNew = await bcrypt.hash(body.password, 10);
 
 			const response = await user.create({
 				name: body.name,
@@ -296,16 +296,17 @@ module.exports = {
 				email: body.email,
 				cellphone: body.cellphone,
 				ci_number: body.ci_number,
+				date_birth: body.fecha_de_nacimiento,
 				picture_image: body.picture_image,
 				username: body.username,
 				password: passwordNew,
 				active: body.active,
 				id_rol: body.id_rol,
 			});
-
 			return {
 				status: true,
-				message: 'Usuario creado',
+				message: 'Usuario creado correctamente',
+				data: response
 			};
 		} catch (error) {
 			console.log('error', error);

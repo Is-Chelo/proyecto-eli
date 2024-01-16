@@ -64,6 +64,10 @@ module.exports = {
 				type: Sequelize.DATE,
 				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
 			},
+			id_user: {
+				allowNull: false,
+				type: Sequelize.INTEGER,
+			},
 		});
 	},
 	async down(queryInterface, Sequelize) {

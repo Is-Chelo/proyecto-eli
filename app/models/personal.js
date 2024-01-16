@@ -34,7 +34,8 @@ module.exports = (sequelize, DataTypes) => {
     universidad: DataTypes.STRING,
     usuario: DataTypes.STRING,
     pass: DataTypes.STRING,
-    firts: DataTypes.BOOLEAN
+    firts: DataTypes.BOOLEAN,
+    id_user: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'personal',
