@@ -83,7 +83,6 @@ module.exports = {
 
 	async update(id, body) {
 		const {password, email, username, ...res} = body;
-
 		try {
 			if (this.validateDateBirth(body.date_birth))
 				return BadRequest(
@@ -285,9 +284,7 @@ module.exports = {
 					errors,
 				};
 			}
-
 			// TODO: verificamos que no exista un usuario con ese email
-
 			let passwordNew = await bcrypt.hash(body.password, 10);
 
 			const response = await user.create({
@@ -316,4 +313,6 @@ module.exports = {
 			};
 		}
 	},
+
+	
 };

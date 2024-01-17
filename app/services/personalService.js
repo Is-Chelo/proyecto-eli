@@ -165,6 +165,13 @@ module.exports = {
 					message: 'Bad request. Please fill all field',
 				});
 			}
+			const responsePersonal = await personal.findOne({
+				where: {id: id},
+			});
+
+			if (!responsePersonal)
+				return NotFoundResponse(`La personal con el id: ${id} que solicitas no existe `);
+
 			const personalData = {
 				id_rol,
 				apellido_paterno,
@@ -182,6 +189,21 @@ module.exports = {
 				profesion,
 				universidad,
 			};
+
+			const dataForUser = {
+				name: nombres,
+				last_name: `${apellido_paterno} ${apellido_materno}`,
+				email: correo_electronico,
+				cellphone: telefono,
+				ci_number: ci,
+				picture_image: null,
+				username: ci,
+				active: true,
+				date_birth: fecha_de_nacimiento,
+				id_rol,
+			};
+
+			AuthServices.update(responsePersonal.id_user, dataForUser);
 
 			await personal.update(personalData, {
 				where: {
