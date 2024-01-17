@@ -23,26 +23,6 @@ module.exports = {
 				return BadRequest('El usuario no tiene un rol Asignado');
 			}
 
-			// const menu = await rol_module.findAll({
-			// 	where: {
-			// 		id_rol: user.id_rol,
-			// 	},
-			// 	include: [
-			// 		{
-			// 			model: modulo,
-			// 			where: {
-			// 				url: {
-			// 					[Op.not]: '/api/v1/role-module',
-			// 				},
-			// 			},
-			// 		},
-			// 	],
-			// });
-
-			// const dataTransform = Object.values(menu).map((data) => {
-			// 	return menuTransform(data.dataValues);
-			// });
-
 			// TODO comparar contraseñas
 			const compararClaves = await bcrypt.compare(password, user.password);
 			// TODO generar el jwt con los datos del usuario  si compararClaves es true
@@ -67,6 +47,9 @@ module.exports = {
 						token: tokenUser,
 						id: user.id,
 						name: user.name,
+						last_name: user.last_name,
+						picture_image: user.picture_image,
+						active: user.active,
 						email: user.email,
 						rol: user.id_rol,
 						// menu: dataTransform,

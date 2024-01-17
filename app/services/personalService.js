@@ -33,27 +33,7 @@ module.exports = {
 			) {
 				return BadRequest('Bad request. Please fill all field', []);
 			}
-			// const personalData = {
-			// 	id_rol,
-			// 	apellido_paterno,
-			// 	apellido_materno,
-			// 	nombres,
-			// 	telefono,
-			// 	correo_electronico,
-			// 	numero_de_cuenta,
-			// 	tipo_de_cuenta,
-			// 	banco,
-			// 	ci,
-			// 	carrera_o_curso,
-			// 	pago_por_hora:pago_por_hora==''?null:pago_por_hora,
-			// 	fecha_de_nacimiento,
-			// 	profesion,
-			// 	universidad,
-			// };
-			// const response = await personal.create(personalData);
-
-			// return Successful('Personal type added', []);
-
+			
 			const dataForUser = {
 				name: nombres,
 				last_name: `${apellido_paterno} ${apellido_materno}`,
@@ -69,6 +49,7 @@ module.exports = {
 			};
 
 			const userCreated = await AuthServices.createUser(dataForUser);
+			
 			if (userCreated.status) {
 				const personalData = {
 					id_rol,
