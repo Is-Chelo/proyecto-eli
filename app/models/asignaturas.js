@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
 			dias: DataTypes.STRING,
 			encargado: DataTypes.INTEGER,
 			modalidad: DataTypes.STRING,
-			cantidad_horas: DataTypes.FLOAT,
+			cantidad_horas: DataTypes.STRING,
 			id_aula: DataTypes.INTEGER,
 			anio: DataTypes.INTEGER,
 			precio_contado: DataTypes.FLOAT,

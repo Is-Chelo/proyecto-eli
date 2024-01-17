@@ -14,19 +14,15 @@ module.exports = {
 						base64: body.image_path,
 					}
 				);
-
 				devImageUrl = uploadDevResponse.data.id;
 			}
-
 			const response = await estudiantes.create({...body, image_path: devImageUrl});
-
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
-
 	async index(params = []) {
 		try {
 			const response = await estudiantes.findAll({});
@@ -37,8 +33,6 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-	// * funcion para listar un item
 	async show(id) {
 		try {
 			const response = await estudiantes.findOne({
@@ -78,7 +72,6 @@ module.exports = {
 		}
 	},
 
-	// * funcion para eliminar un item
 	async delete(id) {
 		try {
 			const response = await estudiantes.findOne({
@@ -86,14 +79,12 @@ module.exports = {
 					id: id,
 				},
 			});
-
 			if (!response)
 				return NotFoundResponse(`La estudiantes con el id: ${id} que solicitas no existe `);
 
 			await estudiantes.destroy({
 				where: {id: id},
 			});
-
 			return Successful('Registro eliminado', []);
 		} catch (error) {
 			console.log(error);

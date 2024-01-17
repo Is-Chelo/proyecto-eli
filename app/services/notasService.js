@@ -28,16 +28,11 @@ module.exports = {
 	// * funcion para listar un item
 	async show(id_registro) {
 		try {
-			const response = await notas.findOne({
-				where: {
-					id_registro: id_registro,
-				},
-				// include: [{model: modulos}, {model: registros}],
-			});
-
+			const response =  await sequelize.query(`SELECT * FROM notas WHERE id_registro = ${id_registro}`);
+			console.log('resoi',response);
 			if (!response) return NotFoundResponse(`notas con el id: ${id_registro} no existe. `);
 
-			return Successful('Operacion Exitosa', response);
+			return Successful('Operacion Exitosa', response[0]);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -100,15 +95,14 @@ module.exports = {
 		  if (id_registro) {
 			notasQuery += ` AND id_registro = ${id_registro}`;
 		  }
-	  
+		  
 		  if (id_modulo!==undefined) {
 			notasQuery += ` AND id_modulo = ${id_modulo}`;
 		  }
-		  console.log('notasQuery',notasQuery);
+		  console.log('notasQuery',notasQuery,'con id:',id_registro);
 	  
 		  const notasResult = await sequelize.query(notasQuery);
 	  
-		  console.log('notasResult', notasResult,'con',notasQuery);
 		  return Successful('Datos', notasResult[0]);
 		} catch (error) {
 		  console.error(error);

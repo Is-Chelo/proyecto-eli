@@ -24,7 +24,7 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const {anio} = params;
+			const {anio, id_carrera} = params;
 			const queryParams = [];
 			let asignaturaQuery = `
 				SELECT *
@@ -33,6 +33,9 @@ module.exports = {
 
 			if (anio) {
 				queryParams.push(`anio = ${anio}`);
+			}
+			if (id_carrera) {
+				queryParams.push(`id_carrera = ${id_carrera}`);
 			}
 
 			if (queryParams.length > 0) {
@@ -78,7 +81,6 @@ module.exports = {
 		}
 	},
 
-	// * funcion para listar un item
 	async show(id) {
 		try {
 			const asignaturaResult = await cursos.findOne({where: {id}});
@@ -111,7 +113,6 @@ module.exports = {
 		}
 	},
 
-	// * funcion para actualizar los datos de un item
 	async update(id, body) {
 		try {
 			const response = await asignaturas.findOne({
