@@ -67,7 +67,7 @@ module.exports = {
 					fecha_de_nacimiento,
 					profesion,
 					universidad,
-					id_user: userCreated.data.id,
+					id_user: userCreated.data.dataValues.id,
 				};
 				const response = await personal.create(personalData);
 				return Successful('Personal type added', []);

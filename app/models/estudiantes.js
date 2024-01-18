@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
 			inscrito: DataTypes.BOOLEAN,
 			image_path: DataTypes.STRING,
 			fecha_nac: DataTypes.DATE,
+			id_user: DataTypes.INTEGER
 		},
 		{
 			sequelize,
