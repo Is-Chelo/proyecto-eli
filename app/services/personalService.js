@@ -28,8 +28,8 @@ module.exports = {
 				apellido_paterno == undefined ||
 				apellido_materno == undefined ||
 				nombres == undefined ||
-				ci == undefined ||
-				correo_electronico == undefined
+				ci == undefined 
+			
 			) {
 				return BadRequest('Bad request. Please fill all field', []);
 			}

@@ -121,16 +121,41 @@ module.exports = {
 		}
 	},
 
+	// async findByUserNameOrEmail(username = '', email = '') {
+	// 	const userExits = await user.findOne({
+	// 		where: {[Op.or]: [{username}, {email}]},
+	// 	});
+
+	// 	if (!userExits) return false;
+
+	// 	return userExits;
+	// },
+
 	async findByUserNameOrEmail(username = '', email = '') {
-		const userExits = await user.findOne({
-			where: {[Op.or]: [{username}, {email}]},
+		console.log('Search Parameters:', username, email);
+	
+		const whereClause = {};
+		
+		if (username !== '') {
+			whereClause[Op.or] = [{ username: username }];
+		}
+	
+		if (email !== '') {
+			whereClause[Op.or] = whereClause[Op.or] || [];
+			whereClause[Op.or].push({ email: email });
+		}
+	
+		const userExists = await user.findOne({
+			where: whereClause,
 		});
-
-		if (!userExits) return false;
-
-		return userExits;
+	
+		console.log('User Found:', userExists);
+	
+		if (!userExists) return false;
+	
+		return userExists;
 	},
-
+	
 	validateDateBirth(datePerson) {
 		const dateNow = moment().format('YYYY-MM-DD');
 		const personDate = datePerson;
