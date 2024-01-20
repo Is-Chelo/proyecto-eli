@@ -6,7 +6,7 @@ const {sequelize} = require('./app/models/index');
 const cors = require('cors');
 
 require('dotenv').config();
-
+// require('dotenv').config({ path: '/custom/path/to/.env' })
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
@@ -41,5 +41,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-	console.log(`Server is running on port http://localhost:${process.env.PORT}`);
+	console.log(`Server is running on port http://localhost:${process.env.PORT} con ${process.env.MYSQL_USER} Y ${process.env.MYSQL_PASSWORD}`);
 });

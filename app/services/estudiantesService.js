@@ -15,7 +15,7 @@ module.exports = {
 				inscrito,
 				image_path,
 				fecha_nac,
-			
+
 			} = body
 			if (
 				apellido == undefined ||
@@ -25,7 +25,7 @@ module.exports = {
 			) {
 				return BadRequest('Bad request. Please fill all field', []);
 			}
-		
+
 			const dataForUser = {
 				name: nombre,
 				last_name: apellido,
@@ -40,8 +40,10 @@ module.exports = {
 				id_rol: 7,
 			};
 			const userCreated = await AuthServices.createUser(dataForUser);
+		
+			
 			if (userCreated.status) {
-				const dataForEstudent={
+				const dataForEstudent = {
 					apellido,
 					nombre,
 					celular,
@@ -54,7 +56,9 @@ module.exports = {
 					id_user: userCreated.data.dataValues.id,
 				}
 				const response = await estudiantes.create(dataForEstudent);
-				return Successful('Item Registrado', []);
+				return Successful('Personal type added', response);
+			} else {
+				return userCreated;
 			}
 		} catch (error) {
 			console.log(error);
