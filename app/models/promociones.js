@@ -16,7 +16,9 @@ module.exports = (sequelize, DataTypes) => {
 				cuotas: this.cuotas,
 				certificado: this.certificado,
 				descuento: this.descuento,
-				prorrateo: this.prorrateo
+				prorrateo: this.prorrateo,
+				precio:this.precio,
+				precio_certificado:this.precio_certificado
 				
 			};
 		}
@@ -28,6 +30,8 @@ module.exports = (sequelize, DataTypes) => {
 			certificado: DataTypes.INTEGER,
 			descuento: DataTypes.INTEGER,
 			prorrateo: DataTypes.BOOLEAN,
+			precio:DataTypes.FLOAT,
+			precio_certificado:DataTypes.FLOAT
 		},
 		{
 			sequelize,

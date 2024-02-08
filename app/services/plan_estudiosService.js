@@ -16,12 +16,13 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const { anio } = params;
+			const { anio, id_carrera } = params;
 			let planEstudio = [];
 			if (anio) {
 				planEstudio = await plan_estudios.findAll({
 					where: {
 						anio,
+						id_carrera
 					},
 				});
 			} else {

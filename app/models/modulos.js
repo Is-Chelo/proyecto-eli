@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 			return {
 				id: this.id,
 				nombre: this.nombre,
+				nombre_corto: this.nombre_corto,
 				estado: this.estado,
 			};
 		}
@@ -33,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
 	modulos.init(
 		{
 			nombre: DataTypes.STRING,
+			nombre_corto: DataTypes.STRING,
 			estado: DataTypes.BOOLEAN,
 		},
 		{

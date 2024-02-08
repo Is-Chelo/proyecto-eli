@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
 				anio: this.anio,
 				precio_contado: this.precio_contado,
 				precio_cuotas: this.precio_cuotas,
+				turno: this.turno,
 				createdAt: this.createdAt,
 				updatedAt: this.updatedAt,
 			};
@@ -54,10 +55,9 @@ module.exports = (sequelize, DataTypes) => {
 			encargado: DataTypes.INTEGER,
 			modalidad: DataTypes.STRING,
 			cantidad_horas: DataTypes.STRING,
-			id_aula: DataTypes.INTEGER,
+			id_aula: DataTypes.STRING,
 			anio: DataTypes.INTEGER,
-			precio_contado: DataTypes.FLOAT,
-			precio_cuotas: DataTypes.FLOAT,
+			turno:DataTypes.STRING,
 		},
 		{
 			sequelize,

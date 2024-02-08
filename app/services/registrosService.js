@@ -1,12 +1,15 @@
-const {registros, estudiantes, cursos, sequelize} = require('../models/index');
-const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
+const { registros, estudiantes, cursos, sequelize } = require('../models/index');
+const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 
 module.exports = {
 	async create(body) {
 		// ({body, fecha_programacion: null});
 		// console.log({...body, fecha_programacion: null});
 		try {
-			const response = await registros.create({...body, fecha_programacion: null});
+			const id_personal = body.id_personal ? body.id_personal : null
+			const fecha_registro = body.fecha_registro ? body.fecha_registro : null
+			const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
+			const response = await registros.create({ ...body, fecha_programacion, id_personal, fecha_registro });
 
 			return Successful('Item Registrado', response);
 		} catch (error) {
@@ -17,7 +20,7 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const {id_estudiante} = params;
+			const { id_estudiante } = params;
 
 			let registrosQuery = `
 				SELECT *
@@ -85,7 +88,7 @@ module.exports = {
 				where: {
 					id: id,
 				},
-				include: [{model: estudiantes}, {model: cursos}],
+				include: [{ model: estudiantes }, { model: cursos }],
 			});
 
 			if (!response) return NotFoundResponse(`registros con el id: ${id} no existe. `);
@@ -99,7 +102,10 @@ module.exports = {
 
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
-		let newbody=null
+		const id_personal = body.id_personal ? body.id_personal : null
+		const fecha_registro = body.fecha_registro ? body.fecha_registro : null
+		const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
+		let newbody = null
 		try {
 			const response = await registros.findOne({
 				where: {
@@ -110,11 +116,11 @@ module.exports = {
 			if (!response) {
 				return NotFoundResponse(`registros con el id: ${id} no existe.`);
 			}
-			if(body.fecha_programacion===''){
-				 newbody={...body, fecha_programacion: null}
-			}else{
-				
-				newbody=body
+			if (body.fecha_programacion === '') {
+				newbody = { ...body, fecha_programacion: null,id_personal, fecha_registro }
+			} else {
+
+				newbody = { ...body, fecha_programacion, id_personal, fecha_registro }
 			}
 
 			await registros.update(newbody, {
@@ -141,7 +147,7 @@ module.exports = {
 				NotFoundResponse(`La registros con el id: ${id} que solicitas no existe `);
 
 			await registros.destroy({
-				where: {id: id},
+				where: { id: id },
 			});
 			return Successful('Registro eliminado', []);
 		} catch (error) {

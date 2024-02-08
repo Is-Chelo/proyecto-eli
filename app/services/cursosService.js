@@ -4,7 +4,13 @@ const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('..
 module.exports = {
 	async create(body) {
 		try {
-			const response = await cursos.create(body);
+			const newbody = {
+				...body,
+				precio_cuotas: body.precio_cuotas === '' ? null : body.precio_cuotas,
+				precio_contado: body.precio_contado === '' ? null : body.precio_cuota,
+				encargado: body.encargado === '' ? null : body.encargado
+			}
+			const response = await cursos.create(newbody);
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
@@ -14,7 +20,15 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const [cursosResult] = await cursos.sequelize.query('SELECT * FROM cursos');
+			const { id_personal } = params
+			let cursosResult = null
+			if (id_personal) {
+
+			} else {
+				[cursosResult] = await cursos.sequelize.query('SELECT * FROM cursos');
+
+			}
+
 
 			const [tipoCursoResult] = await sequelize.query('SELECT * FROM tipo_cursos');
 			const [aulasResult] = await sequelize.query('SELECT * FROM aulas');
@@ -76,8 +90,13 @@ module.exports = {
 
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
-		console.log('cursos update', body);
 		try {
+			const newbody = {
+				...body,
+				precio_cuotas: body.precio_cuotas === '' ? null : body.precio_cuotas,
+				precio_contado: body.precio_contado === '' ? null : body.precio_cuota,
+				encargado: body.encargado === '' ? null : body.encargado
+			}
 			const response = await cursos.findOne({
 				where: {
 					id: id,
@@ -86,7 +105,7 @@ module.exports = {
 
 			if (!response) return NotFoundResponse(`cursos con el id: ${id} no existe.`);
 
-			await cursos.update(body, {
+			await cursos.update(newbody, {
 				where: {
 					id: id,
 				},

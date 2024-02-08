@@ -31,6 +31,9 @@ module.exports = (sequelize, DataTypes) => {
 			modalidad: DataTypes.STRING,
 			id_promocion: DataTypes.INTEGER,
 			id_asignaturas: DataTypes.STRING,
+			condicioninicial: DataTypes.STRING,
+			comentario_registro: DataTypes.STRING,
+			comentario_programacion	: DataTypes.STRING,
 		},
 		{
 			sequelize,

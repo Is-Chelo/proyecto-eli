@@ -4,7 +4,10 @@ const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('..
 module.exports = {
 	async create(body) {
 		try {
-			const response = await registros_carreras.create(body);
+			const id_personal=body.id_personal?body.id_personal:null
+			const fecha_registro=body.fecha_registro?body.fecha_registro:null
+			const fecha_programacion=body.fecha_programacion?body.fecha_programacion:null
+			const response = await registros_carreras.create({...body, fecha_programacion,id_personal,fecha_registro});
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
@@ -48,6 +51,9 @@ module.exports = {
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
 		try {
+			const id_personal=body.id_personal?body.id_personal:null
+			const fecha_registro=body.fecha_registro?body.fecha_registro:null
+			const fecha_programacion=body.fecha_programacion?body.fecha_programacion:null
 			const response = await registros_carreras.findOne({
 				where: {
 					id: id,
@@ -57,8 +63,14 @@ module.exports = {
 			if (!response) {
 				return NotFoundResponse(`registros-carreras con el id: ${id} no existe.`);
 			}
+			if(body.fecha_programacion===''){
+				newbody={...body, fecha_programacion: null}
+		   }else{
+			   
+			   newbody={...body, fecha_programacion,id_personal,fecha_registro}
+		   }
 
-			await registros_carreras.update(body, {
+			await registros_carreras.update(newbody, {
 				where: {
 					id: id,
 				},
@@ -156,9 +168,8 @@ module.exports = {
 				queryParams.push(`id_curso = ${id_carrera}`);
 			}
 			if (id_asignatura) {
-				queryParams.push(`id_asignaturas  = '%${id_asignatura}%'`);
-
-			}
+				queryParams.push(`id_asignaturas REGEXP '[[:<:]]${id_asignatura}[[:>:]]'`)
+			}			
 			if (queryParams.length > 0) {
 				registrosQuery += ` WHERE ${queryParams.join(' AND ')}`;
 			}
@@ -216,7 +227,6 @@ module.exports = {
 					(cobranza) => cobranza.id_registro_carrera === registro.id
 				)
 				const newregister = { ...registro, asignatura }
-
 
 				return {
 					...newregister,

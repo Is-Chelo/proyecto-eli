@@ -47,26 +47,37 @@ module.exports = {
 			const [aulasResult] = await sequelize.query("SELECT * FROM aulas");
 			const [personalResult] = await sequelize.query('SELECT * FROM personals');
 
-			const asignaturasFormatted = asignaturaResult.map((curso) => {
-				const aulaInfo = Object.values(aulasResult).find(
-					(aula) => aula.id === curso.id_aula
-				);
+			const asignaturasFormatted = asignaturaResult.map((asignatura) => {
+				const diasString = asignatura.dias?.replace(/&quot;/g, '"');
+				asignatura.dias = asignatura.dias ? JSON.parse(diasString) : null;
+				const cantidad_horasString = asignatura.cantidad_horas?.replace(/&quot;/g, '"');
+				asignatura.cantidad_horas = asignatura.cantidad_horas ? JSON.parse(cantidad_horasString) : null;
+				const hora_inicioString = asignatura.hora_inicio?.replace(/&quot;/g, '"');
+				asignatura.hora_inicio = asignatura.hora_inicio ? JSON.parse(hora_inicioString) : null;
+				const aulasString = asignatura.id_aula?.replace(/&quot;/g, '"');
+				asignatura.id_aula = asignatura.id_aula ? JSON.parse(aulasString) : null;
+				const aulaInfo = asignatura.id_aula
+				? Object.values(aulasResult).filter((aula) => asignatura.id_aula.includes(aula.nombre))
+				: [];
+				// const aulaInfo = Object.values(aulasResult).find(
+				// 	(aula) => aula.id === asignatura.id_aula
+				// );
 				const carreras = Object.values(carrerasResult).find(
-					(carrera) => carrera.id === curso.id_carrera
+					(carrera) => carrera.id === asignatura.id_carrera
 				);
 				const moduloInfo = Object.values(modulosResult).find(
-					(mod) => mod.id === curso.id_modulo
+					(mod) => mod.id === asignatura.id_modulo
 				);
 				const personalInfo = Object.values(personalResult).find(
-					(personal) => personal.id === curso.id_personal
+					(personal) => personal.id === asignatura.id_personal
 				);
 				const data_encargado = Object.values(personalResult).find(
-					(personal) => personal.id === curso.encargado
+					(personal) => personal.id === asignatura.encargado
 				);
 				console.log('encargado',aulaInfo);
 
 				return {
-					...curso,
+					...asignatura,
 					aula: aulaInfo,
 					personal: personalInfo,
 					modulos: moduloInfo,
@@ -83,7 +94,7 @@ module.exports = {
 
 	async show(id) {
 		try {
-			const asignaturaResult = await cursos.findOne({where: {id}});
+			const asignaturaResult = await asignaturas.findOne({where: {id}});
 			const tipoCursoResult = await tipo_cursos.findAll();
 			const aulasResult = await aulas.findAll();
 			const personalResult = await personal.findAll();
