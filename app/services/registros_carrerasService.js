@@ -64,7 +64,7 @@ module.exports = {
 				return NotFoundResponse(`registros-carreras con el id: ${id} no existe.`);
 			}
 			if(body.fecha_programacion===''){
-				newbody={...body, fecha_programacion: null}
+				newbody={...body, fecha_programacion,id_personal,fecha_registro}
 		   }else{
 			   
 			   newbody={...body, fecha_programacion,id_personal,fecha_registro}
@@ -150,7 +150,7 @@ module.exports = {
 
 	async getRegistros(params) {
 		try {
-			const { id_estudiante, id_carrera, anio, id_asignatura } = params;
+			const { id_estudiante, id_carrera, anio, id_asignatura} = params;
 
 			const queryParams = [];
 			let registrosQuery = `
@@ -168,8 +168,10 @@ module.exports = {
 				queryParams.push(`id_curso = ${id_carrera}`);
 			}
 			if (id_asignatura) {
-				queryParams.push(`id_asignaturas REGEXP '[[:<:]]${id_asignatura}[[:>:]]'`)
-			}			
+				queryParams.push(`FIND_IN_SET(${id_asignatura}, REPLACE(REPLACE(id_asignaturas, '[', ''), ']', ''))`);
+			}
+			
+			
 			if (queryParams.length > 0) {
 				registrosQuery += ` WHERE ${queryParams.join(' AND ')}`;
 			}
@@ -206,7 +208,7 @@ module.exports = {
 			let asignatura = []
 			if (anio) {
 				//  [asignatura] = await sequelize.query(`SELECT * FROM asignaturas WHERE anio=${anio}`);
-				[asignatura] = await sequelize.query(`SELECT asignaturas.*, modulos.nombre  FROM asignaturas INNER JOIN modulos ON asignaturas.id_modulo = modulos.id WHERE asignaturas.anio = ${anio}`);
+				[asignatura] = await sequelize.query(`SELECT asignaturas.*, modulos.*  FROM asignaturas INNER JOIN modulos ON asignaturas.id_modulo = modulos.id WHERE asignaturas.anio = ${anio}`);
 			}
 
 

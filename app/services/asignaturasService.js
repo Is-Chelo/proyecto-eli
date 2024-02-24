@@ -13,7 +13,8 @@ const {InternalServer, NotFoundResponse, Successful} = require('../utils/respons
 module.exports = {
 	async create(body) {
 		try {
-			const response = await asignaturas.create(body);
+			const encargado = body.encargado ? body.encargado : null
+			const response = await asignaturas.create({...body,encargado});
 
 			return Successful('Item Registrado', response);
 		} catch (error) {
@@ -24,7 +25,7 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const {anio, id_carrera} = params;
+			const {anio, id_carrera,turno, modalidad} = params;
 			const queryParams = [];
 			let asignaturaQuery = `
 				SELECT *
@@ -36,6 +37,12 @@ module.exports = {
 			}
 			if (id_carrera) {
 				queryParams.push(`id_carrera = ${id_carrera}`);
+			}
+			if (turno) {
+				queryParams.push(`turno = ${turno}`);
+			}
+			if (modalidad) {
+				queryParams.push(`modalidad = ${modalidad}`);
 			}
 
 			if (queryParams.length > 0) {
