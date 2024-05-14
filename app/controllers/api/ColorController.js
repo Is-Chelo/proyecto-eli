@@ -10,6 +10,11 @@ module.exports = {
 		const response = await colorService.show(id, req.query);
 		res.status(response.statusCode).json(response);
 	},
+	async getModulos(req, res) {
+		const { color, fechaInicio, fechaFin } = req.query; 
+		const response = await colorService.getModulos( color, fechaInicio, fechaFin );
+		res.status(response.statusCode).json(response);
+	},
 	async create(req, res) {
 		const { body } = req
 		const response = await colorService.create(body);

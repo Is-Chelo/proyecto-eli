@@ -26,8 +26,37 @@ module.exports = {
 
 			} else {
 				[cursosResult] = await cursos.sequelize.query('SELECT * FROM cursos');
+				const inscritosQuery = `
+				SELECT id_curso, COUNT(*) as cantidad_inscritos
+				FROM registros
+				GROUP BY id_curso
+			`;
+				const programadosQuery = `
+				SELECT id_curso, COUNT(*) as cantidad_programados
+				FROM registros
+				WHERE estado = 1
+				GROUP BY id_curso
+			`;
+				const [inscritosResult] = await sequelize.query(inscritosQuery);
+				const [programadosResult] = await sequelize.query(programadosQuery);
+
+				const inscritosPorCurso = inscritosResult.reduce((acc, { id_curso, cantidad_inscritos }) => {
+					acc[id_curso] = cantidad_inscritos;
+					return acc;
+				}, {});
+
+				const programadosPorCurso = programadosResult.reduce((acc, { id_curso, cantidad_programados }) => {
+					acc[id_curso] = cantidad_programados;
+					return acc;
+				}, {});
+
+				cursosResult.forEach(curso => {
+					curso.cantidad_inscritos = inscritosPorCurso[curso.id] || 0;
+					curso.cantidad_programados = programadosPorCurso[curso.id] || 0;
+				});
 
 			}
+
 
 
 			const [tipoCursoResult] = await sequelize.query('SELECT * FROM tipo_cursos');
@@ -139,4 +168,5 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
 };

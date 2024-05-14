@@ -53,8 +53,11 @@ router.put(
 
 	registrosControllerController.update
 );
+router.get("/data", registrosControllerController.getData);
+router.get("/databymonth", registrosControllerController.getDataBar);
 router.get('/:id', registrosControllerController.show);
 router.delete('/:id', registrosControllerController.delete);
+
 
 router.get("/curso/:id_curso", registrosControllerController.getRegistrosByCurso);
 

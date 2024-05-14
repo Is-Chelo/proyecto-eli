@@ -13,6 +13,7 @@ module.exports = {
 	},
 
 	async index(params = []) {
+		console.log('index');
 		try {
 			const response = await colores.findAll();
 			return Successful(
@@ -99,26 +100,36 @@ module.exports = {
 		}
 	},
 
-	async getAsistencia(id_curso,fecha) {
-		console.log();
+	
+	
+	async getModulos(color, fechaInicio, fechaFin) {
 		try {
-			let query = 'SELECT * FROM colores WHERE 1=1';
-	  
-			if (id_curso) {
-			  query += ` AND id_curso = ${id_curso}`;
+			let query = `SELECT c.id, c.nombre, c.modalidad, m.fecha
+			FROM colores m
+			INNER JOIN cursos c ON m.id_curso = c.id
+			WHERE 1=1`;
+	
+			if (color) {
+				query += ` AND m.color = '${color}'`;
 			}
-		
-			if (fecha) {
-			  query += ` AND DATE(fecha) = '${fecha}'`;
+	
+			if (fechaInicio !== undefined && fechaFin !== undefined) {
+				query += ` AND DATE(m.fecha) BETWEEN '${fechaInicio}' AND '${fechaFin}'`;
+			} else if (fechaInicio !== undefined && fechaFin === undefined) {
+				query += ` AND DATE(m.fecha) >= '${fechaInicio}'`;
+			} else if (fechaInicio === undefined && fechaFin !== undefined) {
+				query += ` AND DATE(m.fecha) <= '${fechaFin}'`;
 			}
-		
+	
 			const asistenciaResult = await sequelize.query(query);
-		
-			// console.log('asistenciaResult', asistenciaResult,'con',query);
+	
 			return Successful('Datos', asistenciaResult[0]);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
+	
+	
 };

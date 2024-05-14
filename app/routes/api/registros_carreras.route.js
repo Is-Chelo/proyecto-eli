@@ -57,9 +57,10 @@ router.put(
 
 	registros_carrerasControllerController.update
 );
+router.get('/filter', registros_carrerasControllerController.index);
 router.get('/:id', registros_carrerasControllerController.show);
 router.delete('/:id', registros_carrerasControllerController.delete);
 
-router.get('/curso/:id_curso', registros_carrerasControllerController.getRegistrosByCurso);
 
+router.get('/curso/:id_curso', registros_carrerasControllerController.getRegistrosByCurso);
 module.exports = router;

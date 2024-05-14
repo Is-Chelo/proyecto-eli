@@ -81,7 +81,6 @@ module.exports = {
 				const data_encargado = Object.values(personalResult).find(
 					(personal) => personal.id === asignatura.encargado
 				);
-				console.log('encargado',aulaInfo);
 
 				return {
 					...asignatura,

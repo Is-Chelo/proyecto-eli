@@ -1,4 +1,5 @@
 const { estudiantes } = require('../models/index');
+const { user } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 const AuthServices = require('./AuthServices');
 module.exports = {
@@ -15,6 +16,8 @@ module.exports = {
 				inscrito,
 				image_path,
 				fecha_nac,
+				id_sucursal,
+				register_by
 
 			} = body
 			if (
@@ -37,11 +40,12 @@ module.exports = {
 				password: ci,
 				active: true,
 				date_birth: fecha_nac,
+				id_sucursal,
+				register_by,
 				id_rol: 7,
 			};
 			const userCreated = await AuthServices.createUser(dataForUser);
 		
-			
 			if (userCreated.status) {
 				const dataForEstudent = {
 					apellido,
@@ -53,6 +57,8 @@ module.exports = {
 					inscrito,
 					image_path,
 					fecha_nac,
+					id_sucursal,
+					register_by,
 					id_user: userCreated.data.dataValues.id,
 				}
 				const response = await estudiantes.create(dataForEstudent);
@@ -67,8 +73,21 @@ module.exports = {
 	},
 	async index(params = []) {
 		try {
-			const response = await estudiantes.findAll({});
-
+			const {id_sucursal}=params
+			const response = await estudiantes.findAll({
+				where: {
+					id_sucursal: id_sucursal
+				},
+				include: [
+					{
+						model: user,
+						as: 'registrado_por',
+						attributes: ['id', 'name', 'last_name', 'email'],
+					},
+					
+				],
+			});
+			
 			return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
@@ -92,87 +111,93 @@ module.exports = {
 
 	async update(id, body) {
 		try {
-
-			const response = await estudiantes.findOne({
+			const student = await estudiantes.findOne({
 				where: {
 					id: id,
 				},
 			});
 
-			if (!response) return NotFoundResponse(`estudiantes con el id: ${id} no existe.`);
+			if (!student) return NotFoundResponse(`Student with id: ${id} does not exist.`);
+
 			await estudiantes.update(body, {
 				where: {
 					id: id,
 				},
 			});
 
-			return Successful('Registro actualizado', []);
+			const userDataToUpdate = {
+				name: body.nombre,
+				last_name: body.apellido,
+				email: body.correo,
+				cellphone: body.celular,
+				ci_number: body.ci,
+				picture_image: body.image_path,
+				date_birth: body.fecha_nac,
+				
+			};
+
+			const usuario = await user.findOne({
+				where: {
+					id: student.id_user,
+				},
+			});
+
+			if (!usuario) return NotFoundResponse(`User associated with student id: ${id} does not exist.`);
+
+			await user.update(userDataToUpdate, {
+				where: {
+					id: student.id_user,
+				},
+			});
+
+			return Successful('Record updated', []);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
-	// async update(id, body) {
-	// 	try {
-	// 		let devImageUrl = null;
-
-	// 		if (body.image_path) {
-	// 			try {
-	// 				console.log('Subiendo imagen al servidor de archivos...');
-	// 				const uploadDevResponse = await axios.post(
-	// 					'https://serverfilesdev.esam.edu.bo/v1/files/',
-	// 					{
-	// 						app: 'esam.certificados',
-	// 						base64: body.image_path,
-	// 					}
-	// 				);
-
-	// 				devImageUrl = uploadDevResponse.data.id;
-	// 				console.log('Imagen subida exitosamente:', devImageUrl);
-	// 			} catch (uploadError) {
-	// 				console.error('Error al subir la imagen al servidor de archivos:', uploadError);
-	// 				throw new Error('Error al subir la imagen al servidor de archivos');
-	// 			}
-	// 		}
-
-	// 		console.log('Buscando estudiante en la base de datos...');
-	// 		const response = await estudiantes.findOne({
-	// 			where: {
-	// 				id: id,
-	// 			},
-	// 		});
-
-	// 		if (!response) {
-	// 			throw new Error(`estudiantes con el id: ${id} no existe.`);
-	// 		}
-
-	// 		console.log('Actualizando estudiante en la base de datos...');
-	// 		await response.update({ ...body, image_path: devImageUrl });
-
-	// 		console.log('Registro actualizado exitosamente');
-
-	// 		return Successful('Registro actualizado', []);
-	// 	} catch (error) {
-	// 		console.error('Error en la actualización del estudiante:', error);
-	// 		return InternalServer('Error en el servidor');
-	// 	}
-	// }
-	// ,
-
+	
 	async delete(id) {
 		try {
-			const response = await estudiantes.findOne({
+			// Buscar el estudiante por su ID
+			const estudiante = await estudiantes.findOne({
 				where: {
 					id: id,
 				},
 			});
-			if (!response)
-				return NotFoundResponse(`La estudiantes con el id: ${id} que solicitas no existe `);
 
+			// Verificar si el estudiante existe
+			if (!estudiante) {
+				return NotFoundResponse(`El estudiante con el ID: ${id} no existe.`);
+			}
+
+			// Eliminar el estudiante de la tabla de estudiantes
 			await estudiantes.destroy({
-				where: { id: id },
+				where: {
+					id: id,
+				},
 			});
-			return Successful('Registro eliminado', []);
+
+			// Buscar al usuario asociado al estudiante
+			const usuario = await user.findOne({
+				where: {
+					id: estudiante.id_user,
+				},
+			});
+
+			// Verificar si el usuario existe
+			if (!usuario) {
+				return NotFoundResponse(`El usuario asociado al estudiante con el ID: ${id} no existe.`);
+			}
+
+			// Eliminar al usuario de la tabla de usuarios
+			await user.destroy({
+				where: {
+					id: usuario.id,
+				},
+			});
+
+			return Successful('Registro eliminado correctamente.', []);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');

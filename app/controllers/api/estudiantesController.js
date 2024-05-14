@@ -12,6 +12,7 @@ module.exports = {
 	},
 	async create(req, res) {
 		const { body } = req
+		console.log(body);
 		const response = await estudiantesService.create(body);
 		res.status(response.statusCode).json(response);
 	},

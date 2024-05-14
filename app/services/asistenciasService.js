@@ -116,7 +116,6 @@ module.exports = {
 		
 			const asistenciaResult = await sequelize.query(asistenciaQuery);
 		
-			// console.log('asistenciaResult', asistenciaResult,'con',asistenciaQuery);
 			return Successful('Datos', asistenciaResult[0]);
 		} catch (error) {
 			console.log(error);

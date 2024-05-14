@@ -32,6 +32,14 @@ module.exports = {
 		const response = await registrosService.getRegistrosByCurso( id_curso );
 		res.status(response.statusCode).json(response);
 	},
+	async getData(req, res) {
+		const response = await registrosService.getData(req.query );
+		res.status(response.statusCode).json(response);
+	},
+	async getDataBar(req, res) {
+		const response = await registrosService.getDataByMonth(req.query );
+		res.status(response.statusCode).json(response);
+	},
 
 	// * VIEWS
 	// async listView(req, res) {

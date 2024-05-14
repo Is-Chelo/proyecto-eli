@@ -20,7 +20,6 @@ module.exports = {
 			
 			if (Object.keys(params).length > 0) {
 				response = await Filter.applyFilter(params, promociones);
-				console.log(response);
 			}
 
 			return Successful(

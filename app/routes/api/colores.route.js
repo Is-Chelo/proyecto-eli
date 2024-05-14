@@ -30,7 +30,8 @@ router.put(
 	colorController.update
 );
 router.delete('/:id', colorController.delete);
-
+router.get("/modulos", colorController.getModulos);
 router.get("/:id_curso", colorController.show);
+
 
 module.exports = router;

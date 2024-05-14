@@ -34,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
 			condicioninicial: DataTypes.STRING,
 			comentario_registro: DataTypes.STRING,
 			comentario_programacion	: DataTypes.STRING,
+			id_sucursal: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

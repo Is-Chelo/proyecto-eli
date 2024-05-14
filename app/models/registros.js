@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
 			this.hasMany(models.asistencias, {
 				foreignKey: 'id_registro',
 			});
+			this.belongsTo(models.personal, {
+				foreignKey: 'id_personal',
+			});
+			
+			this.belongsTo(models.promociones, {
+                foreignKey: 'id_promocion',
+                as: 'promocion',
+            });
 		}
 	}
 	registros.init(
@@ -34,6 +42,8 @@ module.exports = (sequelize, DataTypes) => {
 			condicioninicial: DataTypes.STRING,
 			comentario_registro: DataTypes.STRING,
 			comentario_programacion	: DataTypes.STRING,
+			id_user: DataTypes.INTEGER,
+			id_sucursal: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

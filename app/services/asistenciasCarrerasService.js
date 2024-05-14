@@ -101,7 +101,6 @@ module.exports = {
 	},
 
 	async getAsistencia(id_registro_carrera,id_asignatura,fecha) {
-		console.log();
 		try {
 			let asistenciaQuery = 'SELECT * FROM asistencias_carreras WHERE 1=1';
 	  

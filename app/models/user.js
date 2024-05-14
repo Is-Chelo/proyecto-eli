@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 			token_reset_clave: DataTypes.STRING,
 			id_rol: DataTypes.INTEGER,
 			active: DataTypes.BOOLEAN,
+			id_sucursal: DataTypes.INTEGER
 		},
 		{
 			sequelize,

@@ -1,6 +1,6 @@
 const { registros_carreras, estudiantes, cursos, sequelize } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
-
+const Filter = require('../utils/filter');
 module.exports = {
 	async create(body) {
 		try {
@@ -17,10 +17,15 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const response = await registros_carreras.findAll({
+			console.log(params);
+
+			const include = [{ model: estudiantes }, { model: cursos }]
+			let response = await registros_carreras.findAll({
 				include: [{ model: estudiantes }, { model: cursos }],
 			});
-
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, registros_carreras, include);
+			}
 			return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
@@ -178,7 +183,6 @@ module.exports = {
 
 
 			registrosQuery += ';';
-			console.log('registrosQuery',registrosQuery);
 
 			const [registrosResult] = await sequelize.query(registrosQuery);
 
@@ -210,10 +214,6 @@ module.exports = {
 				//  [asignatura] = await sequelize.query(`SELECT * FROM asignaturas WHERE anio=${anio}`);
 				[asignatura] = await sequelize.query(`SELECT asignaturas.*, modulos.*  FROM asignaturas INNER JOIN modulos ON asignaturas.id_modulo = modulos.id WHERE asignaturas.anio = ${anio}`);
 			}
-
-
-
-
 			const registrosFormatted = registrosResult.map((registro) => {
 				const estudianteInfo = estudiantesResult.find(
 					(estudiante) => estudiante.id === registro.id_estudiante

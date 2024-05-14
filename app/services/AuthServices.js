@@ -52,7 +52,7 @@ module.exports = {
 						active: user.active,
 						email: user.email,
 						rol: user.id_rol,
-						// menu: dataTransform,
+						id_sucursal:user.id_sucursal
 					},
 				};
 			} else {
