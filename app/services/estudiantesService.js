@@ -86,6 +86,9 @@ module.exports = {
 					},
 					
 				],
+				order: [
+					['createdAt', 'DESC']
+				]
 			});
 			
 			return Successful('Operacion Exitosa', response);

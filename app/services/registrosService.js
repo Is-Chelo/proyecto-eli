@@ -1,117 +1,185 @@
-const { registros, estudiantes, cursos, sequelize, tipo_cursos, personal, asistencias, promociones } = require('../models/index');
+const { registros, estudiantes, cursos, aulas, tipo_cursos, personal, asistencias, promociones,  notas, cobranza } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 const Filter = require('../utils/filter');
+const { Op } = require('sequelize');
 module.exports = {
 	async create(body) {
 		try {
-			const id_personal = body.id_personal ? body.id_personal : null
-			const fecha_registro = body.fecha_registro ? body.fecha_registro : null
-			const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
-			const response = await registros.create({ ...body, fecha_programacion, id_personal, fecha_registro });
-
+			const {
+				id_estudiante,
+				id_curso,
+				id_personal = null,
+				fecha_registro = null,
+				fecha_programacion = null
+			} = body;
+	
+			// Convertir fecha_programacion a null si es una cadena vacía
+			const fechaProgramacion = fecha_programacion === '' ? null : fecha_programacion;
+			const fecha_Registro = fecha_registro === '' ? null : fecha_registro;
+			const id_Personal = id_personal === '' ? null : id_personal;
+	
+			const existingRecord = await registros.findOne({
+				where: {
+					id_estudiante,
+					id_curso
+				}
+			});
+	
+			if (existingRecord) {
+				return BadRequest('El registro ya existe para este estudiante y curso');
+			}
+	
+			const response = await registros.create({
+				...body,
+				fecha_programacion: fechaProgramacion,
+				id_personal: id_Personal,
+				fecha_registro: fecha_Registro
+			});
+	
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
-	},
-	async index(params = []) {
+	}
+	
+	,
+
+	async index(params = {}) {
 		try {
-			const include =  [
+			const include = [
 				{ model: estudiantes },
-				{ model: cursos },
+				{ model: cursos, include: [{ model: tipo_cursos }, {model: aulas}] },
 				{ model: personal },
-				{ model: promociones, as: 'promocion'},
-				{ model: asistencias }
-			]
-			let response = await registros.findAll({
-				include: include
-			});
-			if (Object.keys(params).length > 0) {
-				response = await Filter.applyFilter(params, registros, include);
+				{ model: promociones, as: 'promocion' },
+				{ model: asistencias },
+				{ model: notas }
+			];
+	
+			const queryOptions = {
+				include: include,
+				where: {},
+				order: []
+			};
+	
+			// Default order by 'fecha_registro' if no order parameter is passed
+			if (!params.order) {
+				queryOptions.order.push(['fecha_registro', 'DESC']);
 			}
 	
-			return Successful('Operacion Exitosa', response);
+			if (params.id_sucursal) {
+				queryOptions.where.id_sucursal = params.id_sucursal;
+			}
+			if (params.fecha_inicio && params.fecha_fin) {
+				queryOptions.where.fecha_registro = {
+					[Op.between]: [params.fecha_inicio, params.fecha_fin]
+				};
+			} else if (params.fecha_inicio) {
+				queryOptions.where.fecha_registro = {
+					[Op.gte]: params.fecha_inicio
+				};
+			} else if (params.fecha_fin) {
+				queryOptions.where.fecha_registro = {
+					[Op.lte]: params.fecha_fin
+				};
+			}
+			if (params.condicion) {
+				queryOptions.where.condicion = params.condicion;
+			}
+			if (params.id_curso) {
+				queryOptions.where.id_curso = params.id_curso;
+			}
+	
+			if (params.order) {
+				queryOptions.order.push([{ model: estudiantes }, 'apellido', 'ASC']);
+			}
+	
+			let response = await registros.findAll(queryOptions);
+	
+			const result = response.map(item => {
+				const data = item.fromDataModel();
+				
+				if (data.notas && data.notas.length > 0) {
+					const totalNotas = data.notas.reduce((sum, nota) => sum + nota.nota, 0);
+					data.promedio_nota = totalNotas / data.notas.length;
+				} else {
+					data.promedio_nota = null; 
+				}
+	
+				return {
+					...data,
+					promedio_nota: data.promedio_nota,
+					notas: data.notas
+				};
+			});
+	
+	
+			return Successful('Operacion Exitosa', result);
+	
+		} catch (error) {
+			console.error(error);
+			return InternalServer('Error en el servidor');
+		}
+	},
+	async getList(params = {}) {
+		try {
+			console.log(params);
+			
+			const include = [
+				{ model: estudiantes },
+				{ model: cursos, include: [{ model: tipo_cursos }, {model: aulas}] },
+				{ model: personal },
+			
+			];
+	
+			const queryOptions = {
+				include: include,
+				where: {},
+				order: []
+			};
+	
+			// Default order by 'fecha_registro' if no order parameter is passed
+			if (!params.order) {
+				queryOptions.order.push(['fecha_registro', 'DESC']);
+			}
+	
+			if (params.id_sucursal) {
+				queryOptions.where.id_sucursal = params.id_sucursal;
+			}
+			if (params.fecha_inicio && params.fecha_fin) {
+				queryOptions.where.fecha_registro = {
+					[Op.between]: [params.fecha_inicio, params.fecha_fin]
+				};
+			} else if (params.fecha_inicio) {
+				queryOptions.where.fecha_registro = {
+					[Op.gte]: params.fecha_inicio
+				};
+			} else if (params.fecha_fin) {
+				queryOptions.where.fecha_registro = {
+					[Op.lte]: params.fecha_fin
+				};
+			}
+			if (params.condicion) {
+				queryOptions.where.condicion = params.condicion;
+			}
+			if (params.id_curso) {
+				queryOptions.where.id_curso = params.id_curso;
+			}
+	
+		
+	
+			let response = await registros.findAll(queryOptions);
+	
+		
+	
+	
+			return Successful('Operacion Exitosa', response.map(item=>item.fromDataModel()));
+	
 		} catch (error) {
 			console.error(error);
 			return InternalServer('Error en el servidor');
 		}
 	}
-	
-// 	async index(params = []) {
-// 		try {
-// 			const { id_estudiante, id_sucursal } = params;
-
-// 			let registrosQuery = `
-// 				SELECT *
-// 				FROM registros
-// 			`;
-
-// 			if (id_estudiante) {
-// 				registrosQuery += ` WHERE id_estudiante = ${id_estudiante}`;
-// 			}
-// 			if (id_sucursal) {
-// 				registrosQuery += ` and id_sucursal = ${id_sucursal}`;
-// 			}
-
-// 			registrosQuery += ';';
-
-// 			const [registrosResult] = await sequelize.query(registrosQuery);
-
-// 			const cursosQuery = `
-// 				SELECT *
-// 				FROM cursos;
-// 			`;
-// 			const [cursosResult] = await sequelize.query(cursosQuery);
-
-// 			const estudiantesQuery = `
-// 				SELECT *
-// 				FROM estudiantes;
-// 			`;
-// 			const [estudiantesResult] = await sequelize.query(estudiantesQuery);
-
-// 			const personalQuery = `
-// 				SELECT *
-// 				FROM personals;
-// 			`;
-// 			const [personalResult] = await sequelize.query(personalQuery);
-// 			const [promocionesResult] = await sequelize.query('SELECT * FROM promociones');
-// 			const [asistenciasResult] = await sequelize.query(`
-//     SELECT id_registro, MONTH(a.fecha) AS mes, COUNT(*) AS faltas 
-//     FROM asistencias a 
-//     WHERE a.asistencia = "F" 
-//     GROUP BY MONTH(a.fecha), id_registro;
-// `);
-
-// 			const registrosFormatted = registrosResult.map((registro) => {
-// 				const estudianteInfo = estudiantesResult.find(
-// 					(estudiante) => estudiante.id === registro.id_estudiante
-// 				);
-// 				const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
-// 				const personalInfo = personalResult.find(
-// 					(personal) => personal.id === registro.id_personal
-// 				);
-// 				const PromocionInfo = promocionesResult.find(
-// 					(promocion) => promocion.id === registro.id_promocion
-// 				);
-// 				const asistencias = asistenciasResult.filter((asistencia) => asistencia.id_registro === registro.id);
-// 				return {
-// 					...registro,
-// 					estudiante: estudianteInfo,
-// 					personal: personalInfo,
-// 					curso: cursoInfo,
-// 					promocion: PromocionInfo,
-// 					asistencias
-// 				};
-// 			});
-// 			return Successful('Operacion Exitosa', registrosFormatted);
-// 		} catch (error) {
-// 			console.error(error);
-// 			return InternalServer('Error en el servidor');
-// 		}
-// 	},
-
-	// * funcion para listar un item
 	
 	,
 	async show(id) {
@@ -131,9 +199,10 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-	// * funcion para actualizar los datos de un item
+ 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
+		console.log(body);
+		
 		const id_personal = body.id_personal ? body.id_personal : null
 		const fecha_registro = body.fecha_registro ? body.fecha_registro : null
 		const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
@@ -188,58 +257,8 @@ module.exports = {
 		}
 	},
 
-	// * Funcion para ver curso
-	async getRegistrosByCurso(id_curso) {
-		try {
-			const registrosResult = await sequelize.query(
-				`SELECT * FROM registros WHERE id_curso = ${id_curso}`
-			);
-			if (!registrosResult)
-				return NotFoundResponse(
-					`El curso con ese id: ${id_curso} que solicitas no existe.`
-				);
-
-			const [cursosResult] = await sequelize.query('SELECT * FROM cursos');
-			const [estudiantesResult] = await sequelize.query('SELECT * FROM estudiantes');
-			const [personalResult] = await sequelize.query('SELECT * FROM personals');
-			const [cobranzasResult] = await sequelize.query('SELECT * FROM cobranzas');
-			const [promocionesResult] = await sequelize.query('SELECT * FROM promociones');
-
-			const registrosFormatted = Object.values(registrosResult[0]).map((registro) => {
-				const estudianteInfo = estudiantesResult.find(
-					(estudiante) => estudiante.id === registro.id_estudiante
-				);
-				const cursoInfo = cursosResult.find((curso) => curso.id === registro.id_curso);
-
-				const personalInfo = personalResult.find(
-					(personal) => personal.id === registro.id_personal
-				);
-				const cobranzaInfo = cobranzasResult.find(
-					(cobranza) => cobranza.id_registro === registro.id
-				);
-				const PromocionInfo = promocionesResult.find(
-					(promocion) => promocion.id === registro.id_promocion
-				);
-
-				return {
-					...registro,
-					estudiante: estudianteInfo,
-					personal: personalInfo,
-					curso: cursoInfo,
-					mensualidad: cobranzaInfo ? cobranzaInfo.mensualidad : null,
-					id_cobranza: cobranzaInfo?.id,
-					promocion: PromocionInfo,
-				};
-			});
-
-			return Successful('Operacion Exitosa', registrosFormatted);
-		} catch (error) {
-			console.log(error);
-			return InternalServer('Error en el servidor');
-		}
-	},
+	//DASHBOARD
 	async getData(params = {}) {
-		// console.log(params);
 		try {
 
 			let response = {}
@@ -253,7 +272,7 @@ module.exports = {
 					curso: curso ? curso.toJSON() : null // Agrega los detalles completos del curso si existe
 				};
 			});
-			
+
 			response = await Promise.all(response);
 			let totalInscritos = 0;
 			let mktCap = 0;
@@ -362,36 +381,29 @@ module.exports = {
 	async getDataByMonth(params = {}) {
 		console.log(params);
 		try {
-			// Obtener todos los tipos de cursos disponibles
-			// let tiposCursos = await tipo_cursos.findAll({});
-
-			// Consultar los registros y unirlos con la tabla de cursos
-
 			let response = await registros.findAll({
 				include: [{ model: cursos, include: [{ model: tipo_cursos }] }],
-				// where: { id_sucursal: params.id_sucursal }
 			});
 
 			if (Object.keys(params).length > 0) {
 				response = await Filter.applyFilter(params, registros);
 			}
-	
+
 			const registrosPorMes = {};
 			response.forEach(registro => {
 				if (registro.fecha_registro) {
-					const mes = registro.fecha_registro.getMonth(); // Obtener el mes del registro
+					const mes = registro.fecha_registro.getMonth(); 
 					const nombreTipoCurso = registro.curso ? registro.curso.tipo_curso.nombre : 'Sin curso';
 					if (!registrosPorMes[nombreTipoCurso]) {
-						registrosPorMes[nombreTipoCurso] = new Array(12).fill(0); // Inicializar con 0 registros para cada mes
+						registrosPorMes[nombreTipoCurso] = new Array(12).fill(0); 
 					}
-					registrosPorMes[nombreTipoCurso][mes]++; // Incrementar el conteo para el mes correspondiente
+					registrosPorMes[nombreTipoCurso][mes]++; 
 				}
 			});
 
-			// Preparar los datos en el formato necesario para el gráfico
 			const datasets = [];
 			Object.keys(registrosPorMes).forEach((nombreTipoCurso, index) => {
-				const backgroundColor = this.obtenerColorTipoCurso(index); // Obtener el color del tipo de curso
+				const backgroundColor = this.obtenerColorTipoCurso(index); 
 				datasets.push({
 					type: 'bar',
 					label: nombreTipoCurso,
@@ -407,12 +419,9 @@ module.exports = {
 		}
 	},
 
-	// Otras funciones...
 
-	// Función para obtener el color del tipo de curso
 	obtenerColorTipoCurso(indiceTipoCurso) {
 		const colores = ['#06b6d4', '#eab308', '#85b2f9'];
-		// Seleccionar el color del array según el índice del tipo de curso
 		return colores[indiceTipoCurso % colores.length];
 	}
 

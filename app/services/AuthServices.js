@@ -36,7 +36,7 @@ module.exports = {
 					},
 					process.env.SECRET_KEY,
 					{
-						expiresIn: '4h',
+						expiresIn: '1y',
 					}
 				);
 				return {
@@ -121,18 +121,7 @@ module.exports = {
 		}
 	},
 
-	// async findByUserNameOrEmail(username = '', email = '') {
-	// 	const userExits = await user.findOne({
-	// 		where: {[Op.or]: [{username}, {email}]},
-	// 	});
-
-	// 	if (!userExits) return false;
-
-	// 	return userExits;
-	// },
-
 	async findByUserNameOrEmail(username = '', email = '') {
-		console.log('Search Parameters:', username, email);
 	
 		const whereClause = {};
 		
@@ -140,16 +129,10 @@ module.exports = {
 			whereClause[Op.or] = [{ username: username }];
 		}
 	
-		if (email !== '') {
-			whereClause[Op.or] = whereClause[Op.or] || [];
-			whereClause[Op.or].push({ email: email });
-		}
-	
 		const userExists = await user.findOne({
 			where: whereClause,
 		});
 	
-		console.log('User Found:', userExists);
 	
 		if (!userExists) return false;
 	
@@ -163,7 +146,6 @@ module.exports = {
 		return false;
 	},
 
-	// * funcion para eliminar un item
 	async delete(id) {
 		try {
 			const response = await user.findOne({
@@ -213,7 +195,6 @@ module.exports = {
 
 	async resetPassword(body) {
 		const {password, id, token} = body;
-		console.log('TOKEN: ', token);
 		try {
 			const user = await user.findOne({
 				where: {
@@ -241,7 +222,6 @@ module.exports = {
 					}
 				}
 			);
-			console.log('userToken', userToken);
 			// TODO: haseamos clave
 			const claveNueva = await bcrypt.hash(password, 10);
 			// TODO: actualizar la clave
@@ -307,6 +287,8 @@ module.exports = {
 				password: passwordNew,
 				active: body.active,
 				id_rol: body.id_rol,
+				id_sucursal: body.id_sucursal,
+				sexo: body.genero
 			});
 			return {
 				status: true,

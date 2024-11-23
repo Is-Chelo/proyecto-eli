@@ -22,6 +22,8 @@ module.exports = {
 				fecha_de_nacimiento,
 				profesion,
 				universidad,
+				id_sucursal,
+				genero
 			} = body;
 			if (
 				id_rol == undefined ||
@@ -46,6 +48,7 @@ module.exports = {
 				active: true,
 				date_birth: fecha_de_nacimiento,
 				id_rol,
+				id_sucursal,
 			};
 
 			const userCreated = await AuthServices.createUser(dataForUser);
@@ -68,6 +71,8 @@ module.exports = {
 					profesion,
 					universidad,
 					id_user: userCreated.data.dataValues.id,
+					id_sucursal,
+					genero
 				};
 				const response = await personal.create(personalData);
 				return Successful('Personal type added', []);
@@ -90,7 +95,7 @@ module.exports = {
 				response = await Filter.applyFilter(params, personal);
 			}
 
-			return Successful('Operacion Exitosa', response);
+			return Successful('Operacion Exitosa', response.map(item=>item.fromDataModel()));
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -132,6 +137,7 @@ module.exports = {
 				fecha_de_nacimiento,
 				profesion,
 				universidad,
+				genero
 			} = body;
 			if (
 				id == undefined ||
@@ -168,6 +174,7 @@ module.exports = {
 				pago_por_hora,
 				fecha_de_nacimiento,
 				profesion,
+				genero,
 				universidad,
 			};
 

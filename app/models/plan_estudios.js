@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
   plan_estudios.init({
     id_carrera: DataTypes.INTEGER,
     anio: DataTypes.INTEGER,
-    id_modulos: DataTypes.INTEGER
+    id_modulos: DataTypes.INTEGER,
+    id_sucursal: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'plan_estudios',

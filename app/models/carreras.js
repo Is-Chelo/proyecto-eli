@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 			this.hasMany(models.asignaturas, {
 				foreignKey: 'id_carrera',
 			});
-			// define association here
+			
 		}
 		fromDataModel() {
 			return {

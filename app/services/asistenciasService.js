@@ -4,6 +4,11 @@ const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../u
 module.exports = {
 	async create(body) {
 		try {
+			// Verifica si id_registro es undefined, null o 0
+			if (!body.id_registro || body.id_registro === 0) {
+				return BadRequest('El id_registro es inválido');
+			}
+	
 			const response = await asistencias.create(body);
 			return Successful('Item Registrado', response);
 		} catch (error) {
@@ -11,6 +16,7 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
 
 	async index(params = []) {
 		try {
@@ -27,31 +33,6 @@ module.exports = {
 		}
 	},
 
-	// * funcion para listar un item
-	async show(id, params) {
-		try {
-			const id_registro = id;
-			const {fecha} = params;
-
-			let asistenciaQuery = `
-					SELECT *
-					FROM asistencias
-					WHERE id_registro = ${id_registro}
-				`;
-
-			if (fecha) {
-				asistenciaQuery += `AND fecha = ${fecha}`;
-			}
-
-			const asistenciaResult = await sequelize.query(
-				asistenciaQuery,
-				queryParams
-			  );
-			return Successful('Operacion Exitosa', asistenciaResult.fromDataModel());
-		} catch (error) {
-			return InternalServer('Error en el servidor');
-		}
-	},
 
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {

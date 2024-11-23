@@ -5,6 +5,10 @@ module.exports = {
 		const response = await registros_carrerasService.index(req.query);
 		res.status(response.statusCode).json(response);
 	},
+	async getList(req, res) {
+		const response = await registros_carrerasService.getList(req.query);
+		res.status(response.statusCode).json(response);
+	},
 	async show(req, res) {
 		const {id} = req.params;
 		const response = await registros_carrerasService.show(id);
@@ -27,16 +31,16 @@ module.exports = {
 		res.status(response.statusCode).json(response);
 	},
 	
-	async getRegistrosByCurso(req, res) {
-		const {id_curso} = req.params;
-		const response = await registros_carrerasService.getRegistrosByCurso(id_curso);
-		res.status(response.statusCode).json(response);
-	},
+	// async getRegistrosByCurso(req, res) {
+	// 	const {id_curso} = req.params;
+	// 	const response = await registros_carrerasService.getRegistrosByCurso(id_curso);
+	// 	res.status(response.statusCode).json(response);
+	// },
 
-	async getRegistros(req, res) {
-		const response = await registros_carrerasService.getRegistros(req.query);
-		res.status(response.statusCode).json(response);
-	},
+	// async getRegistros(req, res) {
+	// 	const response = await registros_carrerasService.getRegistros(req.query);
+	// 	res.status(response.statusCode).json(response);
+	// },
 
 	// * VIEWS
 	// async listView(req, res) {

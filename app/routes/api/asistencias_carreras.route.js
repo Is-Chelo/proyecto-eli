@@ -33,6 +33,6 @@ router.put(
 );
 router.delete('/:id', asistenciasCarrerasController.delete);
 
-router.get("/:id_registro", asistenciasCarrerasController.getAsistencia);
+
 
 module.exports = router;

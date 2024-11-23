@@ -1,5 +1,6 @@
 const {aulas} = require('../models/index');
 const {InternalServer, NotFoundResponse, Successful} = require('../utils/response');
+const Filter = require('../utils/filter');
 
 module.exports = {
 	async create(body) {
@@ -14,7 +15,11 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const response = await aulas.findAll({});
+			let response = await aulas.findAll({});
+			
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, aulas);
+			}
 			return Successful(
 				'Operacion Exitosa',
 				response.map((item) => item.fromDataModel())

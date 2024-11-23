@@ -1,6 +1,6 @@
 const {
 	asignaturas,
-	cursos,
+	plan_estudios,
 	carreras,
 	modulos,
 	personal,
@@ -13,8 +13,7 @@ const {InternalServer, NotFoundResponse, Successful} = require('../utils/respons
 module.exports = {
 	async create(body) {
 		try {
-			const encargado = body.encargado ? body.encargado : null
-			const response = await asignaturas.create({...body,encargado});
+			const response = await asignaturas.create({...body});
 
 			return Successful('Item Registrado', response);
 		} catch (error) {
@@ -22,76 +21,31 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-	async index(params = []) {
+	async index(params = {}) {
 		try {
-			const {anio, id_carrera,turno, modalidad} = params;
-			const queryParams = [];
-			let asignaturaQuery = `
-				SELECT *
-				FROM asignaturas
-				`;
-
-			if (anio) {
-				queryParams.push(`anio = ${anio}`);
-			}
-			if (id_carrera) {
-				queryParams.push(`id_carrera = ${id_carrera}`);
-			}
-			if (turno) {
-				queryParams.push(`turno = ${turno}`);
-			}
-			if (modalidad) {
-				queryParams.push(`modalidad = ${modalidad}`);
-			}
-
-			if (queryParams.length > 0) {
-				asignaturaQuery += ` WHERE ${queryParams.join(' AND ')}`;
-			}
-			const [asignaturaResult] = await sequelize.query(asignaturaQuery);
-			const [modulosResult] = await sequelize.query("SELECT * FROM modulos");
-			const [carrerasResult] = await sequelize.query("SELECT * FROM carreras");
-			const [aulasResult] = await sequelize.query("SELECT * FROM aulas");
-			const [personalResult] = await sequelize.query('SELECT * FROM personals');
-
-			const asignaturasFormatted = asignaturaResult.map((asignatura) => {
-				const diasString = asignatura.dias?.replace(/&quot;/g, '"');
-				asignatura.dias = asignatura.dias ? JSON.parse(diasString) : null;
-				const cantidad_horasString = asignatura.cantidad_horas?.replace(/&quot;/g, '"');
-				asignatura.cantidad_horas = asignatura.cantidad_horas ? JSON.parse(cantidad_horasString) : null;
-				const hora_inicioString = asignatura.hora_inicio?.replace(/&quot;/g, '"');
-				asignatura.hora_inicio = asignatura.hora_inicio ? JSON.parse(hora_inicioString) : null;
-				const aulasString = asignatura.id_aula?.replace(/&quot;/g, '"');
-				asignatura.id_aula = asignatura.id_aula ? JSON.parse(aulasString) : null;
-				const aulaInfo = asignatura.id_aula
-				? Object.values(aulasResult).filter((aula) => asignatura.id_aula.includes(aula.nombre))
-				: [];
-				// const aulaInfo = Object.values(aulasResult).find(
-				// 	(aula) => aula.id === asignatura.id_aula
-				// );
-				const carreras = Object.values(carrerasResult).find(
-					(carrera) => carrera.id === asignatura.id_carrera
-				);
-				const moduloInfo = Object.values(modulosResult).find(
-					(mod) => mod.id === asignatura.id_modulo
-				);
-				const personalInfo = Object.values(personalResult).find(
-					(personal) => personal.id === asignatura.id_personal
-				);
-				const data_encargado = Object.values(personalResult).find(
-					(personal) => personal.id === asignatura.encargado
-				);
-
-				return {
-					...asignatura,
-					aula: aulaInfo,
-					personal: personalInfo,
-					modulos: moduloInfo,
-					carreras,
-					data_encargado,
-				};
+			const { anio, id_carrera, turno, modalidad, id_sucursal, id_personal } = params;
+	
+			let whereClause = {};
+			if (id_sucursal) whereClause.id_sucursal = id_sucursal;
+			if (anio) whereClause.anio = anio;
+			if (id_carrera) whereClause.id_carrera = id_carrera;
+			if (turno) whereClause.turno = turno;
+			if (modalidad) whereClause.modalidad = modalidad;
+			if (id_personal) whereClause.id_personal = id_personal;
+	
+			// Obtener asignaturas con Sequelize y aplicar los filtros
+			const response = await asignaturas.findAll({
+				where: whereClause,
+				include: [
+					{ model: modulos },
+					{ model: carreras },
+					{ model: aulas },
+					{ model: personal },
+				],
+				order: [['createdAt', 'DESC']]
 			});
-			return Successful('Operacion Exitosa', asignaturasFormatted);
+	
+			return Successful('Operación Exitosa', response.map(item=> item.fromDataModel()));
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -100,35 +54,25 @@ module.exports = {
 
 	async show(id) {
 		try {
-			const asignaturaResult = await asignaturas.findOne({where: {id}});
-			const tipoCursoResult = await tipo_cursos.findAll();
-			const aulasResult = await aulas.findAll();
-			const personalResult = await personal.findAll();
-
-			const asignaturasFormatted = Object.values(asignaturaResult).map((curso) => {
-				const tipoCursoInfo = Object.values(tipoCursoResult).find(
-					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
-				);
-				const aulaInfo = Object.values(aulasResult).find(
-					(aula) => aula.id === curso.id_aula
-				);
-				const personalInfo = Object.values(personalResult).find(
-					(personal) => personal.id === curso.id_personal
-				);
-
-				return {
-					...curso,
-					tipo_curso: tipoCursoInfo,
-					aula: aulaInfo,
-					personal: personalInfo,
-				};
+			const response = await asignaturas.findOne({
+				where: {
+					id: id,
+				},
+				include: [
+					{ model: aulas },
+					{ model: modulos },
+					{ model: personal },
+				],
 			});
-			return Successful('Operacion Exitosa', asignaturasFormatted);
+
+			if (!response) return NotFoundResponse(`cursos con el id: ${id} no existe. `);
+			return Successful('Operacion Exitosa', response.fromDataModel());
 		} catch (error) {
-			console.error(error);
+			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+
 
 	async update(id, body) {
 		try {

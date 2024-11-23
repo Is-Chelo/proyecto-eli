@@ -12,7 +12,6 @@ module.exports = {
 	},
 	async create(req, res) {
 		const {body} = req;
-		console.log('MODULOS CONTROLLER', body);
 		const response = await modulosService.create(body);
 		res.status(response.statusCode).json(response);
 	},

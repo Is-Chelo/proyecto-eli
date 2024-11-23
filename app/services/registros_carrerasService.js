@@ -1,13 +1,15 @@
-const { registros_carreras, estudiantes, cursos, sequelize } = require('../models/index');
+const { registros_carreras, estudiantes, cursos, personal, carreras, aulas, sequelize, asistencias_carreras, asignaturas, notas_carreras } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
 const Filter = require('../utils/filter');
+const { Op } = require('sequelize');
+
 module.exports = {
 	async create(body) {
 		try {
-			const id_personal=body.id_personal?body.id_personal:null
-			const fecha_registro=body.fecha_registro?body.fecha_registro:null
-			const fecha_programacion=body.fecha_programacion?body.fecha_programacion:null
-			const response = await registros_carreras.create({...body, fecha_programacion,id_personal,fecha_registro});
+			const id_personal = body.id_personal ? body.id_personal : null
+			const fecha_registro = body.fecha_registro ? body.fecha_registro : null
+			const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
+			const response = await registros_carreras.create({ ...body, fecha_programacion, id_personal, fecha_registro });
 			return Successful('Item Registrado', response);
 		} catch (error) {
 			console.log(error);
@@ -15,24 +17,95 @@ module.exports = {
 		}
 	},
 
-	async index(params = []) {
+	async getList(params = []) {
 		try {
-			console.log(params);
-
-			const include = [{ model: estudiantes }, { model: cursos }]
-			let response = await registros_carreras.findAll({
-				include: [{ model: estudiantes }, { model: cursos }],
-			});
-			if (Object.keys(params).length > 0) {
-				response = await Filter.applyFilter(params, registros_carreras, include);
+		
+	
+			const include = [
+				{ model: estudiantes },
+				{ model: carreras },
+				{ model: personal },
+			];
+			let condition = {};
+	
+			if (params.id_asignaturas) {
+				condition.id_asignaturas = { [Op.contains]: [params.id_asignaturas] };
 			}
-			return Successful('Operacion Exitosa', response);
+		
+	
+			let response = await registros_carreras.findAll({
+				include: include,
+				order:  [['createdAt', 'DESC']] // Siempre se envía orderAux, que puede contener solo el predeterminado o ambos
+			});
+	
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, registros_carreras, include,  [['createdAt', 'DESC']]);
+			}
+	
+			return Successful('Operacion Exitosa', response.map(item => item.fromDataModel()));
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
+	async index(params = []) {
+		try {
+			const order = params.order === 'true';
+			delete params.order;
+	
+			// Definir las asociaciones para incluir en la consulta
+			const include = [
+				{ model: estudiantes },
+				{ model: carreras },
+				{ model: personal },
+				{
+					model: notas_carreras,
+					required: false, // Incluye notas aunque no haya notas asociadas
+					where: params.id_asignaturas ? { id_asignatura: params.id_asignaturas } : {}, // Filtra por asignatura si está presente
+				},
+				{
+					model: asistencias_carreras,
+					required: false, // Incluye notas aunque no haya notas asociadas
+					where: params.id_asignaturas ? { id_asignatura: params.id_asignaturas } : {}, // Filtra por asignatura si está presente
+				},
+			];
+	
+			let condition = {};
+	
+			// Cambiar el filtro para MariaDB
+			if (params.id_asignaturas) {
+				condition.id_asignaturas = params.id_asignaturas; // Usa el valor directamente para la comparación
+			}
+	
+			let orderAux;
+			if (order) {
+				orderAux = [[{ model: estudiantes }, 'apellido', 'ASC']];
+			} else {
+				orderAux = [['createdAt', 'DESC']];
+			}
+	
+			// Consulta de registros con inclusión de notas_carreras
+			let response = await registros_carreras.findAll({
+				include: include,
+				order: orderAux, // Siempre se envía orderAux, que puede contener solo el predeterminado o ambos
+				where: condition
+			});
+	
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, registros_carreras, include, orderAux);
+			}
+	
+			return Successful('Operacion Exitosa', response.map(item => item.fromDataModel()));
+		} catch (error) {
+			console.log(error);
+			return InternalServer('Error en el servidor');
+		}
+	}
+	
+	
 
+	,
 	// * funcion para listar un item
 	async show(id) {
 		try {
@@ -40,7 +113,7 @@ module.exports = {
 				where: {
 					id: id,
 				},
-				include: [{ model: estudiantes }, { model: cursos }],
+				include: [{ model: estudiantes }, { model: carreras }],
 			});
 
 			if (!response)
@@ -56,9 +129,9 @@ module.exports = {
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
 		try {
-			const id_personal=body.id_personal?body.id_personal:null
-			const fecha_registro=body.fecha_registro?body.fecha_registro:null
-			const fecha_programacion=body.fecha_programacion?body.fecha_programacion:null
+			const id_personal = body.id_personal ? body.id_personal : null
+			const fecha_registro = body.fecha_registro ? body.fecha_registro : null
+			const fecha_programacion = body.fecha_programacion ? body.fecha_programacion : null
 			const response = await registros_carreras.findOne({
 				where: {
 					id: id,
@@ -68,12 +141,12 @@ module.exports = {
 			if (!response) {
 				return NotFoundResponse(`registros-carreras con el id: ${id} no existe.`);
 			}
-			if(body.fecha_programacion===''){
-				newbody={...body, fecha_programacion,id_personal,fecha_registro}
-		   }else{
-			   
-			   newbody={...body, fecha_programacion,id_personal,fecha_registro}
-		   }
+			if (body.fecha_programacion === '') {
+				newbody = { ...body, fecha_programacion, id_personal, fecha_registro }
+			} else {
+
+				newbody = { ...body, fecha_programacion, id_personal, fecha_registro }
+			}
 
 			await registros_carreras.update(newbody, {
 				where: {
@@ -113,142 +186,5 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-	async getRegistrosByCurso(id_curso) {
-		try {
-			const response = await registros_carreras.findOne({
-				where: {
-					id_curso: id_curso,
-				},
-				include: [{ model: estudiantes }, { model: cursos }],
-			});
-
-			if (!response)
-				return NotFoundResponse(` El registro con ese id_curso: ${id_curso} no existe. `);
-
-			const cursosResult = await cursos.findAll();
-			const estudiantesResult = await estudiantes.findAll();
-			// const personalResult = await connection.query(personalQuery);
-
-			const registrosFormatted = Object.values(response).map((registro) => {
-				const estudianteInfo = estudiantesResult.find(
-					(estudiante) => estudiante.id === registro.id_estudiante
-				);
-				const carrera = cursosResult.find((curso) => curso.id === registro.id_curso);
-				// const personalInfo = personalResult.find(
-				// 	(personal) => personal.id === registro.id_personal
-				// );
-
-				return {
-					...registro,
-					estudiante: estudianteInfo,
-					// personal: personalInfo,
-					curso: carrera,
-				};
-			});
-			return Successful('Operacion Exitosa', registrosFormatted);
-		} catch (error) {
-			console.log(error);
-			return InternalServer('Error en el servidor');
-		}
-	},
-
-	async getRegistros(params) {
-		try {
-			const { id_estudiante, id_carrera, anio, id_asignatura} = params;
-
-			const queryParams = [];
-			let registrosQuery = `
-			  SELECT *
-			  FROM \`registros_carreras\`
-			  `;
-
-			if (anio) {
-				queryParams.push(`anio LIKE '${anio}%'`);
-			}
-			if (id_estudiante) {
-				queryParams.push(`id_estudiante = ${id_estudiante}`);
-			}
-			if (id_carrera) {
-				queryParams.push(`id_curso = ${id_carrera}`);
-			}
-			if (id_asignatura) {
-				queryParams.push(`FIND_IN_SET(${id_asignatura}, REPLACE(REPLACE(id_asignaturas, '[', ''), ']', ''))`);
-			}
-			
-			
-			if (queryParams.length > 0) {
-				registrosQuery += ` WHERE ${queryParams.join(' AND ')}`;
-			}
-
-
-			registrosQuery += ';';
-
-			const [registrosResult] = await sequelize.query(registrosQuery);
-
-			const [cursosResult] = await sequelize.query(`
-			SELECT *
-			FROM carreras;
-		  `);
-
-			const [estudiantesResult] = await sequelize.query(`
-			SELECT *
-			FROM estudiantes;
-		  `);
-
-			const [personalResult] = await sequelize.query(`
-			SELECT *
-			FROM personals;
-		  `);
-			const [promocionesResult] = await sequelize.query(`
-			SELECT *
-			FROM promociones;
-		  `);
-			const [modulosResult] = await sequelize.query(`
-			SELECT *
-			FROM modulos;
-		  `);
-			const [cobranzasResult] = await sequelize.query('SELECT * FROM cobranzas_carreras');
-			let asignatura = []
-			if (anio) {
-				//  [asignatura] = await sequelize.query(`SELECT * FROM asignaturas WHERE anio=${anio}`);
-				[asignatura] = await sequelize.query(`SELECT asignaturas.*, modulos.*  FROM asignaturas INNER JOIN modulos ON asignaturas.id_modulo = modulos.id WHERE asignaturas.anio = ${anio}`);
-			}
-			const registrosFormatted = registrosResult.map((registro) => {
-				const estudianteInfo = estudiantesResult.find(
-					(estudiante) => estudiante.id === registro.id_estudiante
-				);
-				const carrera = cursosResult.find((curso) => curso.id === registro.id_curso);
-				const personalInfo = personalResult.find(
-					(personal) => personal.id === registro.id_personal
-				);
-				const promocion = promocionesResult.find(
-					(promocion) => promocion.id === registro.id_promocion
-				);
-				const cobranzaInfo = cobranzasResult.find(
-					(cobranza) => cobranza.id_registro_carrera === registro.id
-				)
-				const newregister = { ...registro, asignatura }
-
-				return {
-					...newregister,
-					estudiante: estudianteInfo,
-					personal: personalInfo,
-					carrera,
-					promocion,
-					mensualidad: cobranzaInfo ? cobranzaInfo.mensualidad : null,
-					id_cobranza: cobranzaInfo?.id,
-				};
-			});
-			return Successful('Operacion Exitosa', registrosFormatted);
-
-			// res.json(registrosFormatted);
-		} catch (error) {
-			console.error(error);
-			return InternalServer('Error en el servidor');
-			// res.status(500).send(error.message);
-		}
-	},
-
 
 };

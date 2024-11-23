@@ -26,12 +26,12 @@ module.exports = {
 		const response = await asistenciasCarrerasService.delete( id );
 		res.status(response.statusCode).json(response);
 	},
-	async getAsistencia(req, res) {
-		const { id_registro } = req.params
-		const { fecha, id_asignatura} = req.query; 
-		const response = await asistenciasCarrerasService.getAsistencia( id_registro, id_asignatura,fecha );
-		res.status(response.statusCode).json(response);
-	},
+	// async getAsistencia(req, res) {
+	// 	const { id_registro } = req.params
+	// 	const { fecha, id_asignatura} = req.query; 
+	// 	const response = await asistenciasCarrerasService.getAsistencia( id_registro, id_asignatura,fecha );
+	// 	res.status(response.statusCode).json(response);
+	// },
 
 	// * VIEWS
 	// async listView(req, res) {

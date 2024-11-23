@@ -1,5 +1,6 @@
-const { cursos, aulas, tipo_cursos, modulos, plan_estudios, personal, sequelize } = require('../models/index');
+const { cursos, aulas, tipo_cursos, modulos, plan_estudios, personal,  registros } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
+const Filter = require('../utils/filter');
 
 module.exports = {
 	async create(body) {
@@ -20,78 +21,64 @@ module.exports = {
 
 	async index(params = []) {
 		try {
-			const { id_personal } = params
-			let cursosResult = null
-			if (id_personal) {
-
-			} else {
-				[cursosResult] = await cursos.sequelize.query('SELECT * FROM cursos');
-				const inscritosQuery = `
-				SELECT id_curso, COUNT(*) as cantidad_inscritos
-				FROM registros
-				GROUP BY id_curso
-			`;
-				const programadosQuery = `
-				SELECT id_curso, COUNT(*) as cantidad_programados
-				FROM registros
-				WHERE estado = 1
-				GROUP BY id_curso
-			`;
-				const [inscritosResult] = await sequelize.query(inscritosQuery);
-				const [programadosResult] = await sequelize.query(programadosQuery);
-
-				const inscritosPorCurso = inscritosResult.reduce((acc, { id_curso, cantidad_inscritos }) => {
-					acc[id_curso] = cantidad_inscritos;
-					return acc;
-				}, {});
-
-				const programadosPorCurso = programadosResult.reduce((acc, { id_curso, cantidad_programados }) => {
-					acc[id_curso] = cantidad_programados;
-					return acc;
-				}, {});
-
-				cursosResult.forEach(curso => {
-					curso.cantidad_inscritos = inscritosPorCurso[curso.id] || 0;
-					curso.cantidad_programados = programadosPorCurso[curso.id] || 0;
-				});
-
+			const include = [
+				{ model: tipo_cursos },
+				{ model: aulas },
+				{ model: personal },
+				{ model: registros,
+					required: false, 
+					attributes: ['estado'], 
+				},
+			];
+	
+			let response = await cursos.findAll({ include: include, order: [
+				['createdAt', 'DESC']
+			] });
+	
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, cursos, include, [['createdAt', 'DESC']]);
 			}
-
-
-
-			const [tipoCursoResult] = await sequelize.query('SELECT * FROM tipo_cursos');
-			const [aulasResult] = await sequelize.query('SELECT * FROM aulas');
-			const [personalResult] = await sequelize.query('SELECT * FROM personals');
-
-			const cursosFormatted = Object.values(cursosResult).map((curso) => {
-				const tipoCursoInfo = Object.values(tipoCursoResult).find(
-					(tipoCurso) => tipoCurso.id === curso.id_tipo_curso
-				);
-				const aulaInfo = Object.values(aulasResult).find(
-					(aula) => aula.id === curso.id_aula
-				);
-
-				const personalInfo = Object.values(personalResult).find(
-					(personal) => personal.id === curso.id_personal
-				);
-				const encargado = Object.values(personalResult).find(
-					(encargado) => encargado.id === curso.encargado
-				);
-
+	
+			const calcularEstado = (fechaInicio, fechaFin) => {
+				const ahora = new Date();
+				const inicio = new Date(fechaInicio);
+				const fin = new Date(fechaFin);
+	
+				if (ahora < inicio) {
+					return 'Inscripciones';
+				} else if (ahora >= inicio && ahora <= fin) {
+					return 'Desarrollo';
+				} else {
+					return 'Concluido';
+				}
+			};
+	
+			const formattedResponse = response.map((item) => {
+				const dataModel = item.fromDataModel();
+	
+				const inscritos = item.registros.length
+				const programados = item.registros.filter(registro => registro.estado === true).length 
+	
 				return {
-					...curso,
-					tipo_curso: tipoCursoInfo,
-					aula: aulaInfo,
-					personal: personalInfo,
-					encargado
+					...dataModel,
+					estado: calcularEstado(item.fecha_inicio, item.fecha_fin),
+					inscritos, 
+					programados 
 				};
 			});
-			return Successful('Operacion Exitosa', cursosFormatted);
+	
+			return Successful(
+				'Operación Exitosa',
+				formattedResponse
+			);
+	
 		} catch (error) {
-			console.error(error);
+			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
+	
 
 	// * funcion para listar un item
 	async show(id) {

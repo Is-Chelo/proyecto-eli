@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 			// define association here
 		}
 		fromDataModel() {
+			
 			return {
 				id: this.id,
 				id_registro_carrera: this.id_registro_carrera,

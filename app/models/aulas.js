@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
 				nombre: this.nombre,
 				capacidad: this.capacidad,
 				estado: this.estado,
+				id_sucursal: this.id_sucursal
 			};
 		}
 	}
@@ -31,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 			nombre: DataTypes.STRING,
 			capacidad: DataTypes.STRING,
 			estado: DataTypes.BOOLEAN,
+			id_sucursal: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

@@ -1,6 +1,6 @@
 const {modulos} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
-
+const Filter = require('../utils/filter');
 module.exports = {
 	async create(body) {
 		try {
@@ -13,20 +13,36 @@ module.exports = {
 		}
 	},
 
+	// async index(params = []) {
+	// 	try {
+	// 		const response = await modulos.findAll({});
+			
+	// 		return Successful(
+	// 			'Operacion Exitosa',
+	// 			response.map((item) => item.fromDataModel())
+	// 		);
+	// 		// return Successful('Operacion Exitosa', response);
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		return InternalServer('Error en el servidor');
+	// 	}
+	// },
 	async index(params = []) {
 		try {
-			const response = await modulos.findAll({});
+			let response = await modulos.findAll({});
+			
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, modulos);
+			}
 			return Successful(
 				'Operacion Exitosa',
 				response.map((item) => item.fromDataModel())
 			);
-			// return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
-
 	// * funcion para listar un item
 	async show(id) {
 		try {

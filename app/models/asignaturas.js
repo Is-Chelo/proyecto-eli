@@ -1,5 +1,5 @@
 'use strict';
-const {Model} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
 	class asignaturas extends Model {
 		/**
@@ -17,31 +17,55 @@ module.exports = (sequelize, DataTypes) => {
 			this.belongsTo(models.aulas, {
 				foreignKey: 'id_aula',
 			});
-			// define association here
+			this.belongsTo(models.personal, {
+				foreignKey: 'id_personal',
+			});
 		}
 
 		fromDataModel() {
+			const safeJsonParse = (str) => {
+				try {
+					return str ? JSON.parse(str) : null;
+				} catch (error) {
+					console.error(`Error parsing JSON: ${error.message}`);
+					return null;
+				}
+			};
+
+			const decodeHtmlEntities = (str) => {
+				if (typeof str === 'string') {
+					return str.replace(/&quot;/g, '"');
+				}
+				return str;
+			};
+
 			return {
 				id: this.id,
-				id_carrera: this.id_carrera,
+				id_carrera: this.carrera?.id,  // Verificación añadida
 				id_modulo: this.id_modulo,
+				modulo: this.modulo?.nombre,  // Verificación añadida
+				nombre_corto: this.modulo?.nombre_corto,  // Verificación añadida
+				carrera: this.carrera?.nombre,  // Verificación añadida
+				anio: this.anio,
+				turno: this.turno,
 				fecha_inicio: this.fecha_inicio,
 				fecha_fin: this.fecha_fin,
-				id_personal: this.id_personal,
-				hora_inicio: this.hora_inicio,
-				dias: this.dias,
-				encargado: this.encargado,
+				id_docente: this.personal?.id,  // Verificación añadida
+				docente: this.personal ? `${this.personal.nombres} ${this.personal.apellido_paterno} ${this.personal.apellido_materno}` : null,
+				hora_inicio: safeJsonParse(decodeHtmlEntities(this.hora_inicio)),
+				dias: safeJsonParse(decodeHtmlEntities(this.dias)),
 				modalidad: this.modalidad,
-				cantidad_horas: this.cantidad_horas,
-				id_aula: this.id_aula,
-				anio: this.anio,
-				precio_contado: this.precio_contado,
-				precio_cuotas: this.precio_cuotas,
-				turno: this.turno,
+				cantidad_horas: safeJsonParse(decodeHtmlEntities(this.cantidad_horas)),
+				aulas: safeJsonParse(decodeHtmlEntities(this.id_aula)),
+				id_aula: this.aula?.id,  // Verificación añadida
+				aula_nombre: this.aula?.nombre,  // Verificación añadida
+				aula_capacidad: this.aula?.capacidad,  // Verificación añadida
 				createdAt: this.createdAt,
 				updatedAt: this.updatedAt,
 			};
 		}
+
+
 	}
 	asignaturas.init(
 		{
@@ -52,12 +76,12 @@ module.exports = (sequelize, DataTypes) => {
 			id_personal: DataTypes.INTEGER,
 			hora_inicio: DataTypes.STRING,
 			dias: DataTypes.STRING,
-			encargado: DataTypes.INTEGER,
 			modalidad: DataTypes.STRING,
 			cantidad_horas: DataTypes.STRING,
 			id_aula: DataTypes.STRING,
 			anio: DataTypes.INTEGER,
-			turno:DataTypes.STRING,
+			turno: DataTypes.STRING,
+			id_sucursal: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

@@ -3,14 +3,6 @@ const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../u
 
 module.exports = {
 	async create(body) {
-		// try {
-		// 	const response = await programaciones.create(body);
-
-		// 	return Successful('Item Registrado', response);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
 
 		try {
 			const {id_registro} = body;
@@ -58,42 +50,6 @@ module.exports = {
 	},
 
 	async index(params = []) {
-		// try {
-		// 	const response = await programaciones.findAll({
-		// 		include: [{model: registros}],
-		// 	});
-
-		// 	const registrosResult = await registros.findAll();
-		// 	const cursosResult = await cursos.findAll();
-		// 	const estudiantesResult = await estudiantes.findAll();
-
-		// 	const programacionesFormatted = Object.values(response).map((programacion) => {
-		// 		const registroInfo = registrosResult.find(
-		// 			(registro) => registro.id === programacion.id_registro
-		// 		);
-		// 		const estudianteInfo = estudiantesResult.find(
-		// 			(estudiante) => estudiante.id === registroInfo.id_estudiante
-		// 		);
-		// 		const cursoInfo = cursosResult.find((curso) => curso.id === registroInfo.id_curso);
-		// 		// const personalInfo = personalResult.find(
-		// 		// 	(personal) => personal.id === registroInfo.id_personal
-		// 		// );
-
-		// 		return {
-		// 			...programacion,
-		// 			registro: registroInfo,
-		// 			estudiante: estudianteInfo,
-		// 			// personal: personalInfo,
-		// 			curso: cursoInfo,
-		// 		};
-		// 	});
-
-		// 	return Successful('Operacion Exitosa', programacionesFormatted);
-		// } catch (error) {
-		// 	console.log(error);
-		// 	return InternalServer('Error en el servidor');
-		// }
-
 		try {
 			const programacionQuery = `
 					SELECT *

@@ -9,7 +9,6 @@ const asistenciasControllerController = require('../../controllers/api/asistenci
 router.get('/', asistenciasControllerController.index);
 router.post(
 	'/',
-
 	[
 		check('id_registro', 'El id_registro es requerido').trim().escape().not().isEmpty(),
 		check('fecha', 'El fecha es requerido').trim().escape().not().isEmpty(),

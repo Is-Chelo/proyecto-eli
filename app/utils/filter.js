@@ -2,12 +2,12 @@ const { Op } = require('sequelize');
 const { Sequelize } = require('../models');
 
 class Filter {
-    static async applyFilter(query, ModelName, include) {
+    static async applyFilter(query, ModelName, include, order) {
         try {
             const { fecha_inicio, fecha_fin } = query;
             let queryWithFilter = [];
 
-            // Filtrar por fechas
+            // Manejo de filtros de fecha
             if (fecha_inicio && fecha_fin) {
                 const startDate = new Date(fecha_inicio);
                 const endDate = new Date(fecha_fin);
@@ -65,18 +65,25 @@ class Filter {
                 });
             }
 
-            // Filtrar por otros campos
+            // Filtros adicionales
             for (const key in query) {
                 if (key !== 'fecha_inicio' && key !== 'fecha_fin') {
                     let value = query[key];
                     if (value === 'true') value = true;
                     else if (value === 'false') value = false;
                     
-                    if (value === true || value === false) {
+                    // Si es un filtro exacto, usar igualdad
+                    if (key === 'id_personal' || key === 'otro_campo_exacto') {
+                        queryWithFilter.push({
+                            [key]: value,
+                        });
+                    } else if (typeof value === 'boolean') {
+                        // Comparación exacta para valores booleanos
                         queryWithFilter.push({
                             [key]: value,
                         });
                     } else {
+                        // Comparación parcial para otros campos
                         queryWithFilter.push({
                             [key]: {
                                 [Op.like]: `%${value}%`
@@ -91,6 +98,7 @@ class Filter {
                 where: {
                     [Op.and]: queryWithFilter,
                 },
+                order: order
             });
 
             return result;

@@ -100,28 +100,28 @@ module.exports = {
 		}
 	},
 
-	async getAsistencia(id_registro_carrera,id_asignatura,fecha) {
-		try {
-			let asistenciaQuery = 'SELECT * FROM asistencias_carreras WHERE 1=1';
+	// async getAsistencia(id_registro_carrera,id_asignatura,fecha) {
+	// 	try {
+	// 		let asistenciaQuery = 'SELECT * FROM asistencias_carreras WHERE 1=1';
 	  
-			if (id_registro_carrera) {
-			  asistenciaQuery += ` AND id_registro_carrera = ${id_registro_carrera}`;
-			}
-			if (id_asignatura) {
-			  asistenciaQuery += ` AND id_asignatura = ${id_asignatura}`;
-			}
+	// 		if (id_registro_carrera) {
+	// 		  asistenciaQuery += ` AND id_registro_carrera = ${id_registro_carrera}`;
+	// 		}
+	// 		if (id_asignatura) {
+	// 		  asistenciaQuery += ` AND id_asignatura = ${id_asignatura}`;
+	// 		}
 		
-			if (fecha) {
-			  asistenciaQuery += ` AND DATE(fecha) = '${fecha}'`;
-			}
+	// 		if (fecha) {
+	// 		  asistenciaQuery += ` AND DATE(fecha) = '${fecha}'`;
+	// 		}
 		
-			const asistenciaResult = await sequelize.query(asistenciaQuery);
+	// 		const asistenciaResult = await sequelize.query(asistenciaQuery);
 		
-			console.log('asistenciaResult', asistenciaResult,'con',asistenciaQuery);
-			return Successful('Datos', asistenciaResult[0]);
-		} catch (error) {
-			console.log(error);
-			return InternalServer('Error en el servidor');
-		}
-	},
+	// 		console.log('asistenciaResult', asistenciaResult,'con',asistenciaQuery);
+	// 		return Successful('Datos', asistenciaResult[0]);
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		return InternalServer('Error en el servidor');
+	// 	}
+	// },
 };

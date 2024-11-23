@@ -1,6 +1,6 @@
 const { notas_carreras, asignaturas, registros_carreras, sequelize } = require('../models/index');
 const { InternalServer, NotFoundResponse, BadRequest, Successful } = require('../utils/response');
-
+const Filter = require('../utils/filter');
 module.exports = {
 	async create(body) {
 		try {
@@ -12,41 +12,59 @@ module.exports = {
 		}
 	},
 
+
 	async index(params = []) {
 		try {
-			const response = await notas_carreras.findAll({
-				include: [{ model: asignaturas }, { model: registros_carreras }],
-			});
-
-			return Successful('Operacion Exitosa', response);
+			let response = await notas_carreras.findAll({});
+			
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, notas_carreras);
+			}
+			return Successful(
+				'Operacion Exitosa',
+				response
+			);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
-
 	// * funcion para listar un item
-	async show(id_registro_carrera, id_asignatura,casilla) {
+	// async show(id_registro_carrera, id_asignatura,casilla) {
 
+	// 	try {
+	// 		let notas_carrerasQuery = 'SELECT * FROM notas_carreras WHERE 1=1';
+	// 		if (id_registro_carrera) {
+	// 			notas_carrerasQuery += ` AND id_registro_carrera = ${id_registro_carrera}`;
+	// 		}
+	// 		if (id_asignatura) {
+	// 			notas_carrerasQuery += ` AND id_asignatura = ${id_asignatura}`;
+	// 		}
+	// 		if (casilla) {
+	// 			notas_carrerasQuery += ` AND casilla = ${casilla}`;
+	// 		}
+	// 		const response = await sequelize.query(notas_carrerasQuery);
+
+	// 		if (!response) return NotFoundResponse(`notas_carreras con el id: ${id_registro_carrera} no existe. `);
+
+	// 		return Successful('Operacion Exitosa', response[0]);
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		return InternalServer('Error en el servidor');
+	// 	}
+	// },
+	async show(id) {
 		try {
-			let notas_carrerasQuery = 'SELECT * FROM notas_carreras WHERE 1=1';
-			if (id_registro_carrera) {
-				notas_carrerasQuery += ` AND id_registro_carrera = ${id_registro_carrera}`;
-			}
-			if (id_asignatura) {
-				console.log(id_asignatura);
-				notas_carrerasQuery += ` AND id_asignatura = ${id_asignatura}`;
-			}
-			if (casilla) {
-				notas_carrerasQuery += ` AND casilla = ${casilla}`;
-			}
-			console.log('notas_carrerasQuery', notas_carrerasQuery);
-			console.log('id_asignatura', id_asignatura);
-			const response = await sequelize.query(notas_carrerasQuery);
+			const response = await notas_carreras.findOne({
+				where: {
+					id: id,
+				},
+			});
 
-			if (!response) return NotFoundResponse(`notas_carreras con el id: ${id_registro_carrera} no existe. `);
-
-			return Successful('Operacion Exitosa', response[0]);
+			if (!response) {
+				return NotFoundResponse(`notas_carreras con el id: ${id} no existe. `);
+			}
+			return Successful('Operacion Exitosa', response);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
@@ -101,26 +119,6 @@ module.exports = {
 		}
 	},
 
-	// async getNotasModulo(id_registro_carrera, id_modulo) {
-	// 	try {
-	// 	  let notas_carrerasQuery = 'SELECT * FROM notas_carreras WHERE 1=1';
 
-	// 	  if (id_registro_carrera) {
-	// 		notas_carrerasQuery += ` AND id_registro_carrera = ${id_registro_carrera}`;
-	// 	  }
-
-	// 	  if (id_modulo!==undefined) {
-	// 		notas_carrerasQuery += ` AND id_modulo = ${id_modulo}`;
-	// 	  }
-	// 	  console.log('notas_carrerasQuery',notas_carrerasQuery,'con id:',id_registro_carrera);
-
-	// 	  const notas_carrerasResult = await sequelize.query(notas_carrerasQuery);
-
-	// 	  return Successful('Datos', notas_carrerasResult[0]);
-	// 	} catch (error) {
-	// 	  console.error(error);
-	// 	  return InternalServer('Error en el servidor');
-	// 	}
-	//   }
 
 };

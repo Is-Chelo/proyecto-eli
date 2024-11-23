@@ -13,52 +13,92 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
 	async index(params = []) {
 		try {
-			const { anio, id_carrera } = params;
-			let planEstudio = [];
-			if (anio) {
-				planEstudio = await plan_estudios.findAll({
-					where: {
-						anio,
-						id_carrera
-					},
-				});
-			} else {
-				planEstudio = await sequelize.query("SELECT * FROM plan_estudios");
+			let response = await plan_estudios.findAll({});
+	
+			if (Object.keys(params).length > 0) {
+				response = await Filter.applyFilter(params, plan_estudios);
 			}
-
-			const [modulosREsult] = await sequelize.query("SELECT * FROM modulos");
-
-			const dataFormat = Object.values(planEstudio).map((item) => {
+	
+			// Procesar cada elemento para obtener los módulos
+			const formattedResponse = await Promise.all(response.map(async (item) => {
 				let moduloData = [];
 				try {
 					if (item.id_modulos) {
-						const idModulosArray = JSON.parse(item.id_modulos);
-						moduloData = idModulosArray.map((moduleId) => {
-							return Object.values(modulosREsult).find((mod) => mod.id === moduleId);
+						const idModulosArray = JSON.parse(item.id_modulos); 
+						moduloData = await modulos.findAll({
+							where: {
+								id: idModulosArray
+							}
 						});
 					}
 				} catch (error) {
-					console.error('Error parsing JSON:', error);
+					console.error('Error parsing JSON or fetching modules:', error);
 				}
-			
-				const { dataValues, ...rest } = item;
-			
+	
 				return {
-					modulos: moduloData,
-					...dataValues,
+					...item.dataValues,
+					modulos: moduloData, 
 				};
-			});
-			
-			return Successful('Operacion Exitosa', dataFormat[0]);
-			
+			}));
+	
+			return Successful(
+				'Operacion Exitosa',
+				formattedResponse
+			);
+	
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
+	
+	// async index(params = []) {
+	// 	try {
+	// 		const { anio, id_carrera } = params;
+	// 		let planEstudio = [];
+	// 		if (anio) {
+	// 			planEstudio = await plan_estudios.findAll({
+	// 				where: {
+	// 					anio,
+	// 					id_carrera
+	// 				},
+	// 			});
+	// 		} else {
+	// 			planEstudio = await sequelize.query("SELECT * FROM plan_estudios");
+	// 		}
+
+	// 		const [modulosREsult] = await sequelize.query("SELECT * FROM modulos");
+
+	// 		const dataFormat = Object.values(planEstudio).map((item) => {
+	// 			let moduloData = [];
+	// 			try {
+	// 				if (item.id_modulos) {
+	// 					const idModulosArray = JSON.parse(item.id_modulos);
+	// 					moduloData = idModulosArray.map((moduleId) => {
+	// 						return Object.values(modulosREsult).find((mod) => mod.id === moduleId);
+	// 					});
+	// 				}
+	// 			} catch (error) {
+	// 				console.error('Error parsing JSON:', error);
+	// 			}
+			
+	// 			const { dataValues, ...rest } = item;
+			
+	// 			return {
+	// 				modulos: moduloData,
+	// 				...dataValues,
+	// 			};
+	// 		});
+			
+	// 		return Successful('Operacion Exitosa', dataFormat[0]);
+			
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		return InternalServer('Error en el servidor');
+	// 	}
+	// },
 
 	// * funcion para listar un item
 	async show(id) {

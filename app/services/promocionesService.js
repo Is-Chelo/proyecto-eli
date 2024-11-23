@@ -81,7 +81,6 @@ module.exports = {
 					id: id,
 				},
 			});
-
 			if (!response)
 				return NotFoundResponse(`La promociones con el id: ${id} que solicitas no existe `);
 

@@ -6,7 +6,7 @@ const {check} = require('express-validator');
 const {validateFields} = require('../../middlewares/validateFields');
 
 const registros_carrerasControllerController = require('../../controllers/api/registros_carrerasController');
-router.get('/', registros_carrerasControllerController.getRegistros);
+router.get('/', registros_carrerasControllerController.index);
 router.post(
 	'/',
 
@@ -57,10 +57,11 @@ router.put(
 
 	registros_carrerasControllerController.update
 );
-router.get('/filter', registros_carrerasControllerController.index);
+// router.get('/filter', registros_carrerasControllerController.index);
+router.get('/lista', registros_carrerasControllerController.getList);
 router.get('/:id', registros_carrerasControllerController.show);
 router.delete('/:id', registros_carrerasControllerController.delete);
 
 
-router.get('/curso/:id_curso', registros_carrerasControllerController.getRegistrosByCurso);
+// router.get('/curso/:id_curso', registros_carrerasControllerController.getRegistrosByCurso);
 module.exports = router;

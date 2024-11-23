@@ -1,6 +1,6 @@
-const {colores, registros, sequelize} = require('../models/index');
+const {colores, registros, sequelize, cursos} = require('../models/index');
 const {InternalServer, NotFoundResponse, BadRequest, Successful} = require('../utils/response');
-
+const { Sequelize } = require('../models');
 module.exports = {
 	async create(body) {
 		try {
@@ -25,7 +25,6 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
 	// * funcion para listar un item
 	async show(id, params) {
 		try {
@@ -43,15 +42,12 @@ module.exports = {
 		
 			const asistenciaResult = await sequelize.query(query);
 		
-			// console.log('asistenciaResult', asistenciaResult,'con',query);
 			return Successful('Datos', asistenciaResult[0]);
 		} catch (error) {
 			console.log(error);
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-
 	// * funcion para actualizar los datos de un item
 	async update(id, body) {
 		try {
@@ -99,37 +95,53 @@ module.exports = {
 			return InternalServer('Error en el servidor');
 		}
 	},
-
-	
 	
 	async getModulos(color, fechaInicio, fechaFin) {
 		try {
-			let query = `SELECT c.id, c.nombre, c.modalidad, m.fecha
-			FROM colores m
-			INNER JOIN cursos c ON m.id_curso = c.id
-			WHERE 1=1`;
+			let whereClause = {};
 	
 			if (color) {
-				query += ` AND m.color = '${color}'`;
+				whereClause.color = color;
 			}
 	
-			if (fechaInicio !== undefined && fechaFin !== undefined) {
-				query += ` AND DATE(m.fecha) BETWEEN '${fechaInicio}' AND '${fechaFin}'`;
-			} else if (fechaInicio !== undefined && fechaFin === undefined) {
-				query += ` AND DATE(m.fecha) >= '${fechaInicio}'`;
-			} else if (fechaInicio === undefined && fechaFin !== undefined) {
-				query += ` AND DATE(m.fecha) <= '${fechaFin}'`;
+			if (fechaInicio && fechaFin) {
+				whereClause.fecha = {
+					[Sequelize.Op.between]: [fechaInicio, fechaFin]
+				};
+			} else if (fechaInicio) {
+				whereClause.fecha = {
+					[Sequelize.Op.gte]: fechaInicio
+				};
+			} else if (fechaFin) {
+				whereClause.fecha = {
+					[Sequelize.Op.lte]: fechaFin
+				};
 			}
 	
-			const asistenciaResult = await sequelize.query(query);
+			const asistenciaResult = await colores.findAll({
+				where: whereClause,
+				include: [{
+					model: cursos,
+					required: true,
+					attributes: ['nombre', 'modalidad', 'dias']
+				}],
+				attributes: ['fecha', 'color']
+			});
 	
-			return Successful('Datos', asistenciaResult[0]);
+			// Restructure the result
+			const formattedResult = asistenciaResult.map(item => ({
+				fecha: item.fecha,
+				color: item.color,
+				nombre: item.curso.nombre,
+				modalidad: item.curso.modalidad,
+				dias: item.curso.dias
+			}));
+	
+			return Successful('Datos', formattedResult);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 			return InternalServer('Error en el servidor');
 		}
-	},
-	
-	
+	}
 	
 };

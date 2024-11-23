@@ -29,7 +29,6 @@ module.exports = {
 	async show(id_registro) {
 		try {
 			const response =  await sequelize.query(`SELECT * FROM notas WHERE id_registro = ${id_registro}`);
-			console.log('resoi',response);
 			if (!response) return NotFoundResponse(`notas con el id: ${id_registro} no existe. `);
 
 			return Successful('Operacion Exitosa', response[0]);
@@ -99,7 +98,6 @@ module.exports = {
 		  if (id_modulo!==undefined) {
 			notasQuery += ` AND id_modulo = ${id_modulo}`;
 		  }
-		  console.log('notasQuery',notasQuery,'con id:',id_registro);
 	  
 		  const notasResult = await sequelize.query(notasQuery);
 	  
